@@ -1,0 +1,198 @@
+// Use relative URLs for same-origin requests (works on any port)
+const API_BASE = typeof window !== 'undefined' ? '' : (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001');
+
+class ApiClient {
+  private getHeaders(includeAuth = true): HeadersInit {
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+    };
+
+    if (includeAuth && typeof window !== 'undefined') {
+      const authData = localStorage.getItem('dsa-sync-auth');
+      if (authData) {
+        const { state } = JSON.parse(authData);
+        if (state?.token) {
+          headers['Authorization'] = `Bearer ${state.token}`;
+        }
+      }
+    }
+
+    return headers;
+  }
+
+  async request<T>(
+    endpoint: string,
+    options: RequestInit = {}
+  ): Promise<{ data?: T; error?: string }> {
+    try {
+      const response = await fetch(`${API_BASE}${endpoint}`, {
+        ...options,
+        headers: this.getHeaders(options.headers ? false : true),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return { error: data.error || 'Something went wrong' };
+      }
+
+      return { data };
+    } catch (error: any) {
+      return { error: error.message || 'Network error' };
+    }
+  }
+
+  // Auth
+  async register(userData: any) {
+    return this.request('/api/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(userData),
+      headers: this.getHeaders(false),
+    });
+  }
+
+  async login(credentials: any) {
+    return this.request('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify(credentials),
+      headers: this.getHeaders(false),
+    });
+  }
+
+  async getMe() {
+    return this.request('/api/auth/me');
+  }
+
+  // Problems
+  async getProblems(params?: any) {
+    const query = new URLSearchParams(params).toString();
+    return this.request(`/api/problems${query ? `?${query}` : ''}`);
+  }
+
+  async addProblem(problemData: any) {
+    return this.request('/api/problems', {
+      method: 'POST',
+      body: JSON.stringify(problemData),
+    });
+  }
+
+  async updateProblem(id: string, updates: any) {
+    return this.request(`/api/problems/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(updates),
+    });
+  }
+
+  async deleteProblem(id: string) {
+    return this.request(`/api/problems/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Analytics
+  async getAnalytics() {
+    return this.request('/api/analytics');
+  }
+
+  // Revisions
+  async getRevisions() {
+    return this.request('/api/revisions');
+  }
+
+  async completeRevision(id: string, data: any) {
+    return this.request(`/api/revisions/${id}/complete`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  // Friends
+  async getFriends(status = 'Accepted') {
+    return this.request(`/api/friends?status=${status}`);
+  }
+
+  async sendFriendRequest(username: string) {
+    return this.request('/api/friends', {
+      method: 'POST',
+      body: JSON.stringify({ username }),
+    });
+  }
+
+  async respondToFriendRequest(id: string, action: 'accept' | 'reject') {
+    return this.request(`/api/friends/${id}/respond`, {
+      method: 'POST',
+      body: JSON.stringify({ action }),
+    });
+  }
+
+  async getFriendDashboard(friendId: string) {
+    return this.request(`/api/friends/dashboard/${friendId}`);
+  }
+
+  async compareProblem(friendId: string, problemName: string) {
+    return this.request(`/api/friends/compare?friendId=${friendId}&problemName=${encodeURIComponent(problemName)}`);
+  }
+
+  // Challenges
+  async getChallenges() {
+    return this.request('/api/challenges');
+  }
+
+  async createChallenge(challengeData: any) {
+    return this.request('/api/challenges', {
+      method: 'POST',
+      body: JSON.stringify(challengeData),
+    });
+  }
+
+  // Comments
+  async getComments(problemId: string) {
+    return this.request(`/api/comments?problemId=${problemId}`);
+  }
+
+  async addComment(problemId: string, content: string) {
+    return this.request('/api/comments', {
+      method: 'POST',
+      body: JSON.stringify({ problemId, content }),
+    });
+  }
+
+  // AI
+  async getAIRecommendations() {
+    return this.request('/api/ai/recommendations');
+  }
+
+  async analyzeSolution(problemId: string) {
+    return this.request('/api/ai/analyze-solution', {
+      method: 'POST',
+      body: JSON.stringify({ problemId }),
+    });
+  }
+
+  async getAIComparison(userProblemId: string, friendProblemId: string) {
+    return this.request('/api/ai/compare', {
+      method: 'POST',
+      body: JSON.stringify({ userProblemId, friendProblemId }),
+    });
+  }
+
+  async getPatternDetection() {
+    return this.request('/api/ai/pattern-detection');
+  }
+
+  async generateWeeklyReport() {
+    return this.request('/api/ai/weekly-report', {
+      method: 'POST',
+    });
+  }
+
+  async getWeeklyReports() {
+    return this.request('/api/ai/weekly-report');
+  }
+
+  async getConfidenceScore() {
+    return this.request('/api/ai/confidence');
+  }
+}
+
+export const api = new ApiClient();

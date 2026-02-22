@@ -1,0 +1,36 @@
+# robots.txt for DSA Sync
+
+# Allow all crawlers
+User-agent: *
+Allow: /
+
+# Disallow admin and API routes
+Disallow: /api/
+Disallow: /dashboard/
+Disallow: /profile/
+Disallow: /problems/
+Disallow: /friends/
+Disallow: /revision/
+Disallow: /ai/
+
+# Allow public pages
+Allow: /
+Allow: /about
+Allow: /auth/login
+Allow: /auth/register
+
+# Sitemap location
+Sitemap: https://dsasync.vercel.app/sitemap.xml
+
+# Crawl delay (optional)
+Crawl-delay: 1
+
+# Specific bot rules
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
