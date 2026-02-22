@@ -49,4 +49,3 @@ async function connectDB(): Promise<typeof mongoose> {
 }
 
 export default connectDB;
-export default connectDB;
