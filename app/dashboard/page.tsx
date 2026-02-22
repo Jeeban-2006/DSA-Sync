@@ -4,9 +4,11 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import AuthenticatedLayout from '@/components/AuthenticatedLayout';
 import BottomNav from '@/components/BottomNav';
+import NotificationBell from '@/components/NotificationBell';
 import { useAuthStore } from '@/store/authStore';
 import { api } from '@/lib/api-client';
 import toast from 'react-hot-toast';
+import { usePushNotifications } from '@/lib/push-notifications';
 import {
   Trophy,
   Flame,
@@ -31,6 +33,9 @@ export default function DashboardPage() {
   const updateUser = useAuthStore((state) => state.updateUser);
   const [analytics, setAnalytics] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+
+  // Register push notifications
+  usePushNotifications();
 
   useEffect(() => {
     loadAnalytics();
@@ -92,12 +97,15 @@ export default function DashboardPage() {
               <h1 className="text-2xl font-bold text-white mb-1">Welcome back,</h1>
               <p className="text-primary-100 text-lg">{user?.name || 'User'}</p>
             </div>
-            <button
-              onClick={() => router.push('/profile')}
-              className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center text-2xl font-bold text-white hover:bg-white/30 transition-colors"
-            >
-              {user?.name?.charAt(0).toUpperCase()}
-            </button>
+            <div className="flex items-center gap-2">
+              <NotificationBell />
+              <button
+                onClick={() => router.push('/profile')}
+                className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center text-2xl font-bold text-white hover:bg-white/30 transition-colors"
+              >
+                {user?.name?.charAt(0).toUpperCase()}
+              </button>
+            </div>
           </div>
 
           {/* Level Progress */}
