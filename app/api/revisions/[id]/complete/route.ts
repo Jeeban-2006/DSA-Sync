@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Revision from '@/models/Revision';
 import Problem from '@/models/Problem';
+import ActivityLog from '@/models/ActivityLog';
 import { authenticateRequest } from '@/lib/auth';
 
 export async function POST(
@@ -36,10 +37,25 @@ export async function POST(
     }
 
     // Update problem revision count
-    await Problem.findByIdAndUpdate(revision.problemId, {
-      $inc: { revisionCount: 1 },
-      $set: { lastRevised: new Date() },
-      $push: { revisionDates: new Date() },
+    const problem = await Problem.findByIdAndUpdate(
+      revision.problemId,
+      {
+        $inc: { revisionCount: 1 },
+        $set: { lastRevised: new Date() },
+        $push: { revisionDates: new Date() },
+      },
+      { new: true }
+    );
+
+    // Log activity
+    await ActivityLog.create({
+      userId: auth.user.userId,
+      type: 'revision_done',
+      metadata: {
+        problemName: problem?.problemName,
+        revisionId: revision._id,
+        timeTaken,
+      },
     });
 
     return NextResponse.json({

@@ -125,12 +125,50 @@ class ApiClient {
     });
   }
 
-  async getFriendDashboard(friendId: string) {
-    return this.request(`/api/friends/dashboard/${friendId}`);
+  async getFriendDashboard(username: string) {
+    return this.request(`/api/friends/dashboard/${username}`);
   }
 
   async compareProblem(friendId: string, problemName: string) {
     return this.request(`/api/friends/compare?friendId=${friendId}&problemName=${encodeURIComponent(problemName)}`);
+  }
+
+  // Activity Logs
+  async getActivityLogs(params?: any) {
+    const query = new URLSearchParams(params).toString();
+    return this.request(`/api/activity${query ? `?${query}` : ''}`);
+  }
+
+  async createActivityLog(type: string, metadata: any) {
+    return this.request('/api/activity', {
+      method: 'POST',
+      body: JSON.stringify({ type, metadata }),
+    });
+  }
+
+  // Push Notifications
+  async subscribeToPush(subscription: any) {
+    return this.request('/api/push/subscribe', {
+      method: 'POST',
+      body: JSON.stringify(subscription),
+    });
+  }
+
+  async unsubscribeFromPush(endpoint: string) {
+    return this.request('/api/push/subscribe', {
+      method: 'DELETE',
+      body: JSON.stringify({ endpoint }),
+    });
+  }
+
+  async getPushSubscriptions() {
+    return this.request('/api/push/subscribe');
+  }
+
+  async sendTestNotification() {
+    return this.request('/api/push/test', {
+      method: 'POST',
+    });
   }
 
   // Challenges

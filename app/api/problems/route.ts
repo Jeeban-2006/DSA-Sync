@@ -3,6 +3,7 @@ import connectDB from '@/lib/mongodb';
 import Problem from '@/models/Problem';
 import User from '@/models/User';
 import Revision from '@/models/Revision';
+import ActivityLog from '@/models/ActivityLog';
 import { authenticateRequest } from '@/lib/auth';
 import { calculateXP, calculateLevel } from '@/lib/utils';
 import { addDays } from 'date-fns';
@@ -98,6 +99,20 @@ export async function POST(request: NextRequest) {
         },
       ]);
     }
+
+    // Log activity
+    await ActivityLog.create({
+      userId: auth.user.userId,
+      type: 'problem_solved',
+      metadata: {
+        problemName,
+        difficulty,
+        topic,
+        subtopic,
+        timeTaken,
+        platform,
+      },
+    });
 
     return NextResponse.json(
       {

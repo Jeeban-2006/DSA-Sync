@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import AuthenticatedLayout from '@/components/AuthenticatedLayout';
 import BottomNav from '@/components/BottomNav';
 import { api } from '@/lib/api-client';
@@ -8,6 +9,7 @@ import toast from 'react-hot-toast';
 import { Users, UserPlus, Check, X, Search, Trophy, Flame } from 'lucide-react';
 
 export default function FriendsPage() {
+  const router = useRouter();
   const [friends, setFriends] = useState<any[]>([]);
   const [pendingRequests, setPendingRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -167,7 +169,11 @@ export default function FriendsPage() {
               </h2>
               <div className="space-y-3">
                 {friends.map((friendData) => (
-                  <div key={friendData.connectionId} className="card-hover">
+                  <div 
+                    key={friendData.connectionId} 
+                    className="card-hover cursor-pointer"
+                    onClick={() => router.push(`/friends/${friendData.friend.username}`)}
+                  >
                     <div className="flex items-center gap-3">
                       <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center text-white font-bold text-lg">
                         {friendData.friend.name.charAt(0).toUpperCase()}

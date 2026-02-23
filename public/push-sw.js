@@ -1,19 +1,22 @@
 self.addEventListener('push', function (event) {
-  if (!event.data) return;
+  console.log('Push notification received:', event);
+
+  if (!event.data) {
+    console.log('No push data');
+    return;
+  }
 
   const data = event.data.json();
   const title = data.title || 'DSA Sync';
   const options = {
     body: data.body || data.message,
-    icon: '/icon-192x192.png',
-    badge: '/badge-72x72.png',
+    icon: data.icon || '/icons/icon-512x512.svg',
+    badge: data.badge || '/icons/icon-512x512.svg',
     data: {
       url: data.url || data.actionUrl || '/',
+      timestamp: data.timestamp || Date.now(),
     },
-    actions: data.actions || [
-      { action: 'open', title: 'View' },
-      { action: 'close', title: 'Dismiss' },
-    ],
+    actions: data.actions || [],
     tag: data.tag || 'dsa-sync-notification',
     requireInteraction: false,
     vibrate: [200, 100, 200],
@@ -50,12 +53,18 @@ self.addEventListener('notificationclick', function (event) {
 });
 
 self.addEventListener('pushsubscriptionchange', function (event) {
+  console.log('Push subscription changed');
+  
   event.waitUntil(
-    fetch('/api/notifications/preferences/subscribe', {
+    fetch('/api/push/subscribe', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        subscription: event.newSubscription,
+        endpoint: event.newSubscription.endpoint,
+        keys: {
+          p256dh: event.newSubscription.keys.p256dh,
+          auth: event.newSubscription.keys.auth,
+        },
       }),
     })
   );

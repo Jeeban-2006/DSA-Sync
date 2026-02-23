@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import AuthenticatedLayout from '@/components/AuthenticatedLayout';
 import BottomNav from '@/components/BottomNav';
+import PushNotificationManager from '@/components/PushNotificationManager';
 import { useAuthStore } from '@/store/authStore';
 import { api } from '@/lib/api-client';
 import toast from 'react-hot-toast';
@@ -17,6 +18,7 @@ import {
   LogOut,
   Copy,
   Check,
+  Bell,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -137,6 +139,15 @@ export default function ProfilePage() {
                 <p className="text-white">{joinDate}</p>
               </div>
             </div>
+          </div>
+
+          {/* Notification Settings */}
+          <div className="card">
+            <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+              <Bell className="w-5 h-5 text-primary-400" />
+              Push Notifications
+            </h2>
+            <PushNotificationManager />
           </div>
 
           {/* Info Card */}

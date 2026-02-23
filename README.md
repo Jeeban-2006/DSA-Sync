@@ -34,11 +34,24 @@ A modern, mobile-first Progressive Web App (PWA) for tracking, comparing, and im
 
 - **🤝 Collaboration Features**
   - Friend system (send/accept requests)
+  - **👤 Detailed Friend Profiles** - View comprehensive friend stats and activity
+  - **📊 Mutual Comparison System** - Compare your progress with friends
+  - **🎯 Common Problem Detection** - Find and compare shared problems
   - View friend's dashboard and progress
   - Recent activity feed
   - Comment on solutions
   - React to friend's entries
   - Same problem comparison mode
+  - **Activity Feed** - See what your friends are solving in real-time
+
+- **🔔 Smart Push Notification System**
+  - **Daily Streak Reminders** - Auto-notification at 8 PM if no problem solved
+  - **Revision Reminders** - Alerts for pending revisions
+  - **Friend Activity Alerts** - Get notified when friends solve problems
+  - Browser push notifications (works even when app is closed)
+  - Test notification feature
+  - Easy enable/disable in settings
+  - PWA-powered offline-ready notifications
 
 - **🏆 Challenge Mode**
   - Create custom challenges (e.g., "5 DP in 3 days")
@@ -105,7 +118,10 @@ dsa-tracker/
 │   └── page.tsx                  # Home page
 ├── components/                   # React components
 │   ├── AuthenticatedLayout.tsx   # Auth wrapper
-│   └── BottomNav.tsx             # Mobile navigation
+│   ├── BottomNav.tsx             # Mobile navigation
+│   ├── NotificationBell.tsx      # Notification icon
+│   ├── NotificationSettings.tsx  # Notification preferences
+│   └── PushNotificationManager.tsx # Push notification setup
 ├── lib/                          # Utility libraries
 │   ├── mongodb.ts                # Database connection
 │   ├── jwt.ts                    # JWT utilities
@@ -113,7 +129,9 @@ dsa-tracker/
 │   ├── auth.ts                   # Auth middleware
 │   ├── utils.ts                  # Helper functions
 │   ├── ai-service.ts             # AI integration
-│   └── api-client.ts             # API client
+│   ├── api-client.ts             # API client
+│   ├── push-service.ts           # Push notification service
+│   └── notification-service.ts   # Notification helpers
 ├── models/                       # MongoDB models
 │   ├── User.ts
 │   ├── Problem.ts
@@ -123,7 +141,10 @@ dsa-tracker/
 │   ├── Challenge.ts
 │   ├── Achievement.ts
 │   ├── AIReport.ts
-│   └── UserStats.ts
+│   ├── UserStats.ts
+│   ├── ActivityLog.ts           # Activity tracking
+│   ├── PushSubscription.ts      # Push notification subscriptions
+│   └── Notification.ts
 ├── store/                        # State management
 │   └── authStore.ts              # Auth state (Zustand)
 ├── public/                       # Static assets
@@ -176,9 +197,25 @@ dsa-tracker/
    # App URL
    NEXT_PUBLIC_APP_URL=http://localhost:3000
 
+   # VAPID Keys for Push Notifications (Generate using: npx web-push generate-vapid-keys)
+   VAPID_PUBLIC_KEY=your-vapid-public-key
+   VAPID_PRIVATE_KEY=your-vapid-private-key
+   NEXT_PUBLIC_VAPID_PUBLIC_KEY=your-vapid-public-key
+
+   # Admin & Security
+   ADMIN_EMAIL=admin@yourdomain.com
+   CRON_SECRET=your-secure-cron-secret
+   ADMIN_SECRET=your-admin-secret
+
    # AI Provider
    AI_PROVIDER=groq
    ```
+
+   **Generate VAPID Keys for Push Notifications:**
+   ```bash
+   npx web-push generate-vapid-keys
+   ```
+   Copy the public and private keys to your `.env.local` file.
 
 4. **Run the development server**
    ```bash
