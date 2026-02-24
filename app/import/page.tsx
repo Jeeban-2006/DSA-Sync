@@ -679,7 +679,7 @@ export default function ImportPage() {
                     <div className="text-sm text-gray-300">
                       <p className="font-semibold text-white mb-1">Sync Feature</p>
                       <p>
-                        Use "Sync" to fetch only new submissions without duplicating existing
+                        Use &quot;Sync&quot; to fetch only new submissions without duplicating existing
                         problems.
                       </p>
                     </div>
@@ -772,11 +772,11 @@ export default function ImportPage() {
                     <div className="text-sm text-gray-300">
                       <p className="font-semibold text-white mb-1">Important: API Limitations</p>
                       <p className="mb-2">
-                        LeetCode's public API may not return all problems in one import. The API typically provides recent submissions.
+                        LeetCode&apos;s public API may not return all problems in one import. The API typically provides recent submissions.
                       </p>
                       <p className="font-semibold text-white mb-1">Tips:</p>
                       <ul className="list-disc list-inside space-y-1">
-                        <li>If you don't see all problems, wait a few minutes and click "Sync New Submissions"</li>
+                        <li>If you don&apos;t see all problems, wait a few minutes and click &quot;Sync New Submissions&quot;</li>
                         <li>Sync regularly after solving new problems</li>
                         <li>The system prevents duplicates automatically</li>
                       </ul>
