@@ -25,10 +25,16 @@ class ApiClient {
     options: RequestInit = {}
   ): Promise<{ data?: T; error?: string }> {
     try {
+      console.log(`🌐 API Request: ${options.method || 'GET'} ${endpoint}`);
+      
       const response = await fetch(`${API_BASE}${endpoint}`, {
         ...options,
         headers: this.getHeaders(options.headers ? false : true),
+        // CRITICAL: Prevent service worker from caching auth requests
+        cache: endpoint.includes('/api/auth') ? 'no-store' : 'default',
       });
+      
+      console.log(`📡 Response: ${response.status} ${response.statusText}`);
 
       // Handle 401 Unauthorized - token expired or invalid
       if (response.status === 401) {
@@ -52,14 +58,25 @@ class ApiClient {
         return { error: 'Session expired. Please login again.' };
       }
 
-      const data = await response.json();
+      const contentType = response.headers.get('content-type');
+      let data;
+      
+      if (contentType && contentType.includes('application/json')) {
+        data = await response.json();
+      } else {
+        console.error('❌ Non-JSON response received');
+        return { error: 'Invalid response format from server' };
+      }
 
       if (!response.ok) {
+        console.error('❌ Request failed:', data.error || 'Unknown error');
         return { error: data.error || 'Something went wrong' };
       }
 
+      console.log('✅ Request successful');
       return { data };
     } catch (error: any) {
+      console.error('❌ Network error:', error);
       return { error: error.message || 'Network error' };
     }
   }
