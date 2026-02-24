@@ -30,6 +30,28 @@ class ApiClient {
         headers: this.getHeaders(options.headers ? false : true),
       });
 
+      // Handle 401 Unauthorized - token expired or invalid
+      if (response.status === 401) {
+        // Clear auth state if token is invalid
+        if (typeof window !== 'undefined') {
+          const authData = localStorage.getItem('dsa-sync-auth');
+          if (authData) {
+            try {
+              const parsed = JSON.parse(authData);
+              // Only clear if we actually had a token (not just logged out)
+              if (parsed?.state?.token) {
+                localStorage.removeItem('dsa-sync-auth');
+                window.location.href = '/auth/login';
+              }
+            } catch (e) {
+              // Invalid JSON, clear it
+              localStorage.removeItem('dsa-sync-auth');
+            }
+          }
+        }
+        return { error: 'Session expired. Please login again.' };
+      }
+
       const data = await response.json();
 
       if (!response.ok) {
@@ -97,6 +119,19 @@ class ApiClient {
   // Revisions
   async getRevisions() {
     return this.request('/api/revisions');
+  }
+
+  async createRevision(problemId: string) {
+    return this.request('/api/revisions', {
+      method: 'POST',
+      body: JSON.stringify({ problemId }),
+    });
+  }
+
+  async deleteRevision(problemId: string) {
+    return this.request(`/api/revisions?problemId=${problemId}`, {
+      method: 'DELETE',
+    });
   }
 
   async completeRevision(id: string, data: any) {
@@ -230,6 +265,63 @@ class ApiClient {
 
   async getConfidenceScore() {
     return this.request('/api/ai/confidence');
+  }
+
+  // Import
+  async downloadTemplate() {
+    if (typeof window !== 'undefined') {
+      window.location.href = '/api/import/template';
+    }
+  }
+
+  async importCSV(file: File) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const token = typeof window !== 'undefined' 
+      ? JSON.parse(localStorage.getItem('dsa-sync-auth') || '{}')?.state?.token 
+      : null;
+
+    const response = await fetch('/api/import/csv', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    const data = await response.json();
+    
+    if (!response.ok) {
+      return { error: data.error || 'Failed to import CSV' };
+    }
+
+    return { data };
+  }
+
+  async importFromCodeforces(handle: string, isSync = false) {
+    return this.request('/api/import/codeforces', {
+      method: 'POST',
+      body: JSON.stringify({ handle, isSync }),
+    });
+  }
+
+  async importFromLeetCode(username: string, isSync = false) {
+    return this.request('/api/import/leetcode', {
+      method: 'POST',
+      body: JSON.stringify({ username, isSync }),
+    });
+  }
+
+  async importFromCodeChef(username: string, isSync = false) {
+    return this.request('/api/import/codechef', {
+      method: 'POST',
+      body: JSON.stringify({ username, isSync }),
+    });
+  }
+
+  async getImportHistory(limit = 10, skip = 0) {
+    return this.request(`/api/import/history?limit=${limit}&skip=${skip}`);
   }
 }
 

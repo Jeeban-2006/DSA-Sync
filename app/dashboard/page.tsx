@@ -18,6 +18,8 @@ import {
   Award,
   Code2,
   Calendar,
+  Upload,
+  RotateCcw,
 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
@@ -130,6 +132,39 @@ export default function DashboardPage() {
         </div>
 
         <div className="p-4 space-y-4">
+          {/* Quick Actions */}
+          <div className="grid grid-cols-1 gap-3">
+            <div className="card-hover cursor-pointer" onClick={() => router.push('/import')}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-blue-600/20 flex items-center justify-center">
+                    <Upload className="w-6 h-6 text-blue-400" />
+                  </div>
+                  <div>
+                    <p className="text-lg font-semibold text-white">Import Problems</p>
+                    <p className="text-gray-400 text-sm">Bulk import from CSV or Codeforces</p>
+                  </div>
+                </div>
+                <div className="text-gray-400">→</div>
+              </div>
+            </div>
+
+            <div className="card-hover cursor-pointer" onClick={() => router.push('/revision')}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-purple-600/20 flex items-center justify-center">
+                    <RotateCcw className="w-6 h-6 text-purple-400" />
+                  </div>
+                  <div>
+                    <p className="text-lg font-semibold text-white">Revision Queue</p>
+                    <p className="text-gray-400 text-sm">Review and strengthen concepts</p>
+                  </div>
+                </div>
+                <div className="text-gray-400">→</div>
+              </div>
+            </div>
+          </div>
+
           {/* Stats Grid */}
           <div className="grid grid-cols-2 gap-4">
             <div className="card-hover">
@@ -251,7 +286,15 @@ export default function DashboardPage() {
           {/* Recent Problems */}
           {analytics?.recentProblems?.length > 0 && (
             <div className="card">
-              <h3 className="text-lg font-semibold text-white mb-4">Recent Activity</h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-white">Recent Activity</h3>
+                <button
+                  onClick={() => router.push('/problems')}
+                  className="text-sm text-primary-400 hover:text-primary-300 transition-colors font-medium"
+                >
+                  View All →
+                </button>
+              </div>
               <div className="space-y-3">
                 {analytics.recentProblems.slice(0, 5).map((problem: any) => (
                   <div
@@ -274,6 +317,12 @@ export default function DashboardPage() {
                   </div>
                 ))}
               </div>
+              <button
+                onClick={() => router.push('/problems')}
+                className="w-full mt-4 py-2 text-sm text-primary-400 hover:text-primary-300 hover:bg-primary-400/10 rounded-lg transition-colors font-medium"
+              >
+                View All {analytics?.totalProblems || 0} Problems
+              </button>
             </div>
           )}
         </div>

@@ -1,10 +1,11 @@
 'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
-import { Home, Plus, RotateCcw, Users, Sparkles } from 'lucide-react';
+import { Home, Plus, List, RotateCcw, Users, Sparkles } from 'lucide-react';
 
 const navItems = [
-  { icon: Home, label: 'Dashboard', path: '/dashboard' },
+  { icon: Home, label: 'Home', path: '/dashboard' },
+  { icon: List, label: 'Problems', path: '/problems' },
   { icon: Plus, label: 'Add', path: '/problems/add' },
   { icon: RotateCcw, label: 'Revision', path: '/revision' },
   { icon: Users, label: 'Friends', path: '/friends' },

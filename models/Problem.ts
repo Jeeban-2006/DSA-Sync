@@ -24,6 +24,14 @@ export interface IProblem extends Document {
   lastRevised?: Date;
   revisionCount: number;
   timesAttempted: number;
+  // Import-related fields
+  imported: boolean;
+  importSource?: 'CSV' | 'Codeforces' | 'LeetCode' | 'CodeChef';
+  externalId?: string;
+  importBatchId?: string;
+  importedAt?: Date;
+  originalSolvedDate?: Date;
+  lastSyncedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -57,6 +65,14 @@ const ProblemSchema = new Schema<IProblem>(
     lastRevised: { type: Date },
     revisionCount: { type: Number, default: 0 },
     timesAttempted: { type: Number, default: 1 },
+    // Import fields
+    imported: { type: Boolean, default: false },
+    importSource: { type: String, enum: ['CSV', 'Codeforces', 'LeetCode', 'CodeChef'] },
+    externalId: { type: String },
+    importBatchId: { type: String },
+    importedAt: { type: Date },
+    originalSolvedDate: { type: Date },
+    lastSyncedAt: { type: Date },
   },
   { timestamps: true }
 );
@@ -64,5 +80,8 @@ const ProblemSchema = new Schema<IProblem>(
 ProblemSchema.index({ userId: 1, dateSolved: -1 });
 ProblemSchema.index({ userId: 1, topic: 1 });
 ProblemSchema.index({ userId: 1, markedForRevision: 1 });
+ProblemSchema.index({ userId: 1, problemName: 1, platform: 1 });
+ProblemSchema.index({ userId: 1, imported: 1 });
+ProblemSchema.index({ importBatchId: 1 });
 
 export default mongoose.models.Problem || mongoose.model<IProblem>('Problem', ProblemSchema);

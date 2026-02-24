@@ -12,7 +12,18 @@ A modern, mobile-first Progressive Web App (PWA) for tracking, comparing, and im
 
 ### 🎯 Core Features
 
-- **📝 Problem Logging System**
+- **� Bulk Import System** (NEW!)
+  - **CSV Import** - Upload CSV files with your problem-solving history
+  - **Codeforces API Import** - Automatically fetch all accepted submissions
+  - Downloadable CSV template with examples
+  - Smart duplicate detection (by problem name + platform)
+  - Data validation and error reporting
+  - Sync feature for incremental updates
+  - Import history tracking with statistics
+  - Rate limiting for security (5 CSV/hour, 10 Codeforces/hour)
+  - Seamless onboarding for existing competitive programmers
+
+- **�📝 Problem Logging System**
   - Track problems with detailed metadata (platform, difficulty, topic, time taken)
   - Store approach summaries, mistakes, and key learnings
   - Optional code snippets

@@ -38,8 +38,11 @@ export default function ProfilePage() {
   };
 
   const handleLogout = () => {
-    logout();
-    router.push('/auth/login');
+    if (confirm('Are you sure you want to logout?')) {
+      logout();
+      toast.success('Logged out successfully');
+      router.push('/auth/login');
+    }
   };
 
   if (!user) {

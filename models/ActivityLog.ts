@@ -7,7 +7,9 @@ export type ActivityType =
   | 'challenge_joined'
   | 'challenge_completed'
   | 'friend_added'
-  | 'achievement_unlocked';
+  | 'achievement_unlocked'
+  | 'import_completed'
+  | 'import_synced';
 
 export interface IActivityLog extends Document {
   _id: Types.ObjectId;
@@ -22,6 +24,9 @@ export interface IActivityLog extends Document {
     challengeId?: string;
     friendId?: string;
     achievementName?: string;
+    count?: number;
+    source?: string;
+    importBatchId?: string;
     [key: string]: any;
   };
   createdAt: Date;
@@ -44,7 +49,9 @@ const ActivityLogSchema = new Schema<IActivityLog>(
         'challenge_joined',
         'challenge_completed',
         'friend_added',
-        'achievement_unlocked'
+        'achievement_unlocked',
+        'import_completed',
+        'import_synced'
       ],
       required: true 
     },

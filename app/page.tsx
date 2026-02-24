@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuthStore } from '@/store/authStore';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import dynamic from 'next/dynamic';
@@ -34,10 +35,19 @@ gsap.registerPlugin(ScrollTrigger);
 
 export default function Home() {
   const router = useRouter();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const hasHydrated = useAuthStore((state) => state.hasHydrated);
   const heroRef = useRef<HTMLDivElement>(null);
   const featuresRef = useRef<HTMLDivElement>(null);
   const collaborationRef = useRef<HTMLDivElement>(null);
   const aiRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Redirect to dashboard if already logged in
+    if (hasHydrated && isAuthenticated) {
+      router.push('/dashboard');
+    }
+  }, [hasHydrated, isAuthenticated, router]);
 
   useEffect(() => {
     // Smooth scrolling

@@ -71,3 +71,110 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+export async function POST(request: NextRequest) {
+  try {
+    const auth = await authenticateRequest();
+    if (!auth.authenticated || !auth.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const { problemId } = body;
+
+    if (!problemId) {
+      return NextResponse.json({ error: 'Problem ID is required' }, { status: 400 });
+    }
+
+    await connectDB();
+
+    // Check if problem exists and belongs to user
+    const problem = await Problem.findOne({
+      _id: problemId,
+      userId: auth.user.userId,
+    });
+
+    if (!problem) {
+      return NextResponse.json({ error: 'Problem not found' }, { status: 404 });
+    }
+
+    // Check if revision already exists
+    const existingRevision = await Revision.findOne({
+      userId: auth.user.userId,
+      problemId: problemId,
+      status: 'Pending',
+    });
+
+    if (existingRevision) {
+      return NextResponse.json({ error: 'Revision already exists for this problem' }, { status: 400 });
+    }
+
+    // Create revision with 3-day cycle as default
+    const scheduledDate = new Date();
+    scheduledDate.setDate(scheduledDate.getDate() + 3);
+
+    const revision = await Revision.create({
+      userId: auth.user.userId,
+      problemId: problemId,
+      scheduledDate: scheduledDate,
+      cycle: '3-day',
+      status: 'Pending',
+    });
+
+    // Update problem markedForRevision flag
+    await Problem.updateOne(
+      { _id: problemId },
+      { $set: { markedForRevision: true } }
+    );
+
+    return NextResponse.json({ 
+      message: 'Revision created successfully',
+      revision 
+    });
+  } catch (error) {
+    console.error('Create revision error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const auth = await authenticateRequest();
+    if (!auth.authenticated || !auth.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const problemId = searchParams.get('problemId');
+
+    if (!problemId) {
+      return NextResponse.json({ error: 'Problem ID is required' }, { status: 400 });
+    }
+
+    await connectDB();
+
+    // Delete all pending revisions for this problem
+    await Revision.deleteMany({
+      userId: auth.user.userId,
+      problemId: problemId,
+      status: 'Pending',
+    });
+
+    // Update problem markedForRevision flag
+    await Problem.updateOne(
+      { _id: problemId },
+      { $set: { markedForRevision: false } }
+    );
+
+    return NextResponse.json({ message: 'Revision removed successfully' });
+  } catch (error) {
+    console.error('Delete revision error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
