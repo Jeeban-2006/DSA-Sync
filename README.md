@@ -137,7 +137,7 @@ dsa-tracker/
 │   ├── mongodb.ts                # Database connection
 │   ├── jwt.ts                    # JWT utilities
 │   ├── bcrypt.ts                 # Password hashing
-│   ├── auth.ts                   # Auth middleware
+│   ├── auth.ts                   # Auth helper (per-route validation)
 │   ├── utils.ts                  # Helper functions
 │   ├── ai-service.ts             # AI integration
 │   ├── api-client.ts             # API client
@@ -239,10 +239,26 @@ dsa-tracker/
 
 ### Building for Production
 
-```bash
-npm run build
-npm start
-```
+1. **Generate PWA Icons** (required for PWA installation)
+   ```bash
+   npm install --save-dev sharp
+   npm run generate-icons
+   ```
+
+2. **Build and start**
+   ```bash
+   npm run build
+   npm start
+   ```
+
+### Available Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm start` - Start production server
+- `npm run lint` - Run ESLint
+- `npm run generate-icons` - Generate PWA icons from SVG
+- `npm run cleanup-docs` - Remove unnecessary documentation files
 
 ## 📱 PWA Installation
 
@@ -261,7 +277,7 @@ npm start
 
 ## 🤖 AI Features Configuration
 
-The AI features use Groq AI with Llama 3.3 70B (for complex analysis) and Llama 3.1 8B (for quick responses) models with JSON mode for structured responses. Each AI feature has a specific prompt template in `lib/ai-service.ts`. See `GROQ_AI_GUIDE.md` for detailed documentation.
+The AI features use Groq AI with Llama 3.3 70B (for complex analysis) and Llama 3.1 8B (for quick responses) models with JSON mode for structured responses. Each AI feature has a specific prompt template in `lib/ai-service.ts`.
 
 ### AI Features:
 
@@ -272,29 +288,42 @@ The AI features use Groq AI with Llama 3.3 70B (for complex analysis) and Llama 
 5. **Weekly Growth Report**: Auto-generates weekly performance summary
 6. **Confidence Estimator**: Calculates interview readiness score
 
+### Getting Groq API Key
+
+1. Visit [Groq Console](https://console.groq.com)
+2. Sign up for a free account
+3. Generate an API key
+4. Add to your `.env.local` file as `GROQ_API_KEY`
+
 ## 📊 Database Schema
 
-See [DATABASE_SCHEMA.md](./docs/DATABASE_SCHEMA.md) for detailed schema documentation.
-
 **Collections:**
-- Users
-- Problems
-- Revisions
-- FriendConnections
-- Comments
-- Challenges
-- Achievements
-- AIReports
-- UserStats
+- **Users** - User accounts with authentication
+- **Problems** - Tracked problems with solutions
+- **Revisions** - Spaced repetition schedule
+- **FriendConnections** - Social connections
+- **Comments** - Solution discussions
+- **Challenges** - Custom challenges
+- **Achievements** - User achievements
+- **AIReports** - Generated AI insights
+- **UserStats** - Analytics and statistics
+- **ActivityLog** - User activity tracking
+- **Notification** - System notifications
+- **PushSubscription** - Push notification subscriptions
+- **NotificationPreferences** - User notification settings
+- **ImportHistory** - Import tracking
 
 ## 🔐 Authentication Flow
 
-1. User registers with email/password
-2. Password is hashed using bcryptjs
-3. JWT token is generated and returned
-4. Token is stored in client (Zustand persist)
-5. All authenticated requests include JWT in Authorization header
-6. Server validates JWT for protected routes
+1. User registers with email/password at `/api/auth/register` or logs in at `/api/auth/login`
+2. Password is hashed using bcryptjs (on server)
+3. JWT token is generated (30-day expiration) and returned with user object
+4. Client stores token + user in Zustand state (persisted to localStorage)
+5. API client (`lib/api-client.ts`) automatically includes `Authorization: Bearer <token>` header
+6. Protected API routes call `authenticateRequest()` helper to validate JWT
+7. Invalid/expired tokens return `401 Unauthorized`
+
+**Note:** This app uses per-route authentication (each protected route manually validates), not centralized Next.js middleware.
 
 ## 🎯 API Routes
 
@@ -371,13 +400,31 @@ The app uses a dark theme with customizable colors in `tailwind.config.ts`. Colo
 
 ## 🌐 Deployment
 
-See [DEPLOYMENT.md](./docs/DEPLOYMENT.md) for detailed deployment instructions for:
+### Vercel (Recommended)
 
-- Vercel
-- Netlify
-- Railway
-- DigitalOcean
-- AWS
+1. Push your code to GitHub
+2. Import project in Vercel dashboard
+3. Add environment variables in project settings
+4. Deploy
+
+### Environment Variables for Production
+
+Required variables:
+- `MONGODB_URI` - MongoDB Atlas connection string
+- `JWT_SECRET` - Generate with: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`
+- `GROQ_API_KEY` - From Groq Console
+- `NEXT_PUBLIC_APP_URL` - Your production URL
+- `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` - Generate with: `npx web-push generate-vapid-keys`
+- `ADMIN_EMAIL` - Admin email for notifications
+- `CRON_SECRET` - Protect cron endpoints
+- `ADMIN_SECRET` - Protect admin endpoints
+
+### MongoDB Atlas Setup
+
+1. Create free MongoDB Atlas account
+2. Create a cluster
+3. Whitelist Vercel IPs or use 0.0.0.0/0
+4. Get connection string and add to environment variables
 
 ## 🤝 Contributing
 

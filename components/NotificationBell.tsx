@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Bell, Check, Trash2, X } from 'lucide-react';
 import Link from 'next/link';
+import { useAuthStore } from '@/store/authStore';
 
 interface Notification {
   _id: string;
@@ -20,11 +21,26 @@ export default function NotificationBell() {
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const { token } = useAuthStore();
+
+  const getAuthHeaders = () => {
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+    };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    return headers;
+  };
 
   const fetchNotifications = async () => {
+    if (!token) return; // Don't fetch if not authenticated
+    
     try {
       setLoading(true);
-      const response = await fetch('/api/notifications?limit=10');
+      const response = await fetch('/api/notifications?limit=10', {
+        headers: getAuthHeaders(),
+      });
       if (response.ok) {
         const data = await response.json();
         setNotifications(data.notifications);
@@ -56,9 +72,9 @@ export default function NotificationBell() {
 
   const markAsRead = async (notificationIds?: string[]) => {
     try {
-      const response = await fetch('/api/notifications/mark-read', {
+      const response = await fetch('/api/notifications', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify({
           notificationIds,
           markAll: !notificationIds,
@@ -77,6 +93,7 @@ export default function NotificationBell() {
     try {
       const response = await fetch(`/api/notifications?id=${notificationId}`, {
         method: 'DELETE',
+        headers: getAuthHeaders(),
       });
 
       if (response.ok) {

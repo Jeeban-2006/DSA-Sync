@@ -108,6 +108,10 @@ class ApiClient {
     return this.request(`/api/problems${query ? `?${query}` : ''}`);
   }
 
+  async getProblem(id: string) {
+    return this.request(`/api/problems/${id}`);
+  }
+
   async addProblem(problemData: any) {
     return this.request('/api/problems', {
       method: 'POST',

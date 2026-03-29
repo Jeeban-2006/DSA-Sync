@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import AuthenticatedLayout from '@/components/AuthenticatedLayout';
 import BottomNav from '@/components/BottomNav';
 import { api } from '@/lib/api-client';
@@ -429,15 +430,10 @@ export default function ProblemsPage() {
             </div>
           ) : (
             filteredProblems.map((problem) => (
-              <div
+              <Link
                 key={problem._id}
-                className="card hover:border-primary-500/50 transition-all cursor-pointer"
-                onClick={() => {
-                  // TODO: Navigate to problem detail page if you create one
-                  if (problem.problemLink) {
-                    window.open(problem.problemLink, '_blank');
-                  }
-                }}
+                href={`/problems/${problem._id}`}
+                className="block card hover:border-primary-500/50 transition-all cursor-pointer"
               >
                 <div className="flex items-start gap-3">
                   <div className="flex-1">
@@ -456,15 +452,15 @@ export default function ProblemsPage() {
                           <Star className={`w-4 h-4 ${problem.markedForRevision ? 'fill-current' : ''}`} />
                         </button>
                         {problem.problemLink && (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              window.open(problem.problemLink, '_blank');
-                            }}
+                          <a
+                            href={problem.problemLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
                             className="text-primary-400 hover:text-primary-300 transition-colors"
                           >
                             <ExternalLink className="w-4 h-4" />
-                          </button>
+                          </a>
                         )}
                       </div>
                     </div>
@@ -521,7 +517,7 @@ export default function ProblemsPage() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))
           )}
         </div>
