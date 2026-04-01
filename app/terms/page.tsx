@@ -35,7 +35,7 @@ export default function TermsOfService() {
           <section>
             <h2 className="text-2xl font-semibold text-white mb-4">1. Acceptance</h2>
             <p className="text-gray-400 leading-relaxed">
-              By using DSA Sync, you agree to these terms. If you don't agree, please don't use the service.
+              By using DSA Sync, you agree to these terms. If you don&apos;t agree, please don&apos;t use the service.
             </p>
           </section>
 
@@ -51,7 +51,7 @@ export default function TermsOfService() {
           <section>
             <h2 className="text-2xl font-semibold text-white mb-4">3. Acceptable Use</h2>
             <p className="text-gray-400 leading-relaxed">
-              Don't use the service illegally, harm other users, or try to breach security.
+              Don&apos;t use the service illegally, harm other users, or try to breach security.
             </p>
           </section>
 
