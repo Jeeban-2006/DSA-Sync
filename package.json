@@ -9,7 +9,8 @@
     "start": "next start",
     "lint": "next lint",
     "generate-icons": "node scripts/generate-icons.js",
-    "cleanup-docs": "node scripts/cleanup-docs.js"
+    "cleanup-docs": "node scripts/cleanup-docs.js",
+    "create-legal-pages": "node scripts/create-legal-pages.js"
   },
   "dependencies": {
     "@types/three": "^0.183.1",

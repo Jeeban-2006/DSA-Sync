@@ -136,8 +136,18 @@ export default function LandingFooter() {
               © 2026 DSA Sync. Built with  ❤️ for competitive programmers.
             </p>
             <div className="flex gap-6 text-sm text-gray-400">
-              <button className="hover:text-white transition-colors">Privacy Policy</button>
-              <button className="hover:text-white transition-colors">Terms of Service</button>
+              <button 
+                onClick={() => router.push('/privacy')}
+                className="hover:text-white transition-colors"
+              >
+                Privacy Policy
+              </button>
+              <button 
+                onClick={() => router.push('/terms')}
+                className="hover:text-white transition-colors"
+              >
+                Terms of Service
+              </button>
             </div>
           </div>
         </div>

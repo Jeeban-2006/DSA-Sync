@@ -3,7 +3,7 @@ import connectDB from '@/lib/mongodb';
 import Problem from '@/models/Problem';
 import User from '@/models/User';
 import { authenticateRequest } from '@/lib/auth';
-import { calculateStreak } from '@/lib/utils';
+import { calculateStreak, calculateXP, calculateLevel } from '@/lib/utils';
 import { startOfDay, endOfDay, subDays } from 'date-fns';
 
 export async function GET(request: NextRequest) {
@@ -57,8 +57,18 @@ export async function GET(request: NextRequest) {
     const dates = problems.map((p) => new Date(p.dateSolved));
     const { current: currentStreak, longest: longestStreak } = calculateStreak(dates);
 
-    // Update user streaks
+    // Calculate XP from ALL problems
+    let totalXP = 0;
+    problems.forEach(problem => {
+      totalXP += calculateXP(problem.difficulty, problem.timeTaken || 0);
+    });
+    const newLevel = calculateLevel(totalXP);
+
+    // Update user stats (problems count, XP, level, and streaks)
     await User.findByIdAndUpdate(userId, {
+      totalProblemsSolved: totalProblems,
+      xp: totalXP,
+      level: newLevel,
       currentStreak,
       longestStreak: Math.max(longestStreak, (await User.findById(userId))?.longestStreak || 0),
     });

@@ -9,6 +9,7 @@ import { useAuthStore } from '@/store/authStore';
 import { api } from '@/lib/api-client';
 import toast from 'react-hot-toast';
 import { usePushNotifications } from '@/lib/push-notifications';
+import { getNextLevelXP } from '@/lib/utils';
 import {
   Trophy,
   Flame,
@@ -87,7 +88,15 @@ export default function DashboardPage() {
     .sort((a, b) => b.count - a.count)
     .slice(0, 5);
 
-  const progressPercentage = user ? ((user.xp % 100) / 100) * 100 : 0;
+  // Calculate level progress correctly
+  const currentLevel = user?.level || 1;
+  const currentXP = user?.xp || 0;
+  const currentLevelMinXP = Math.pow(currentLevel - 1, 2) * 100; // XP at start of current level
+  const nextLevelXP = getNextLevelXP(currentLevel); // XP needed for next level
+  const xpInCurrentLevel = currentXP - currentLevelMinXP; // XP earned in current level
+  const xpNeededForNextLevel = nextLevelXP - currentLevelMinXP; // Total XP needed for this level
+  const progressPercentage = (xpInCurrentLevel / xpNeededForNextLevel) * 100;
+  const xpToNextLevel = nextLevelXP - currentXP;
 
   return (
     <AuthenticatedLayout>
@@ -126,7 +135,7 @@ export default function DashboardPage() {
               />
             </div>
             <p className="text-primary-100 text-xs mt-2">
-              {100 - (user?.xp || 0) % 100} XP to next level
+              {xpToNextLevel} XP to next level
             </p>
           </div>
         </div>

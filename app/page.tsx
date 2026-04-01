@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
 import gsap from 'gsap';
@@ -23,6 +23,8 @@ import {
   Rocket,
   CheckCircle2,
   Trophy,
+  ChevronDown,
+  HelpCircle,
 } from 'lucide-react';
 
 // Dynamically import Three.js component
@@ -41,6 +43,7 @@ export default function Home() {
   const featuresRef = useRef<HTMLDivElement>(null);
   const collaborationRef = useRef<HTMLDivElement>(null);
   const aiRef = useRef<HTMLDivElement>(null);
+  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
 
   useEffect(() => {
     // Redirect to dashboard if already logged in
@@ -146,13 +149,6 @@ export default function Home() {
               <p className="text-3xl font-bold text-white">98%</p>
               <p className="text-gray-400 text-sm">Success Rate</p>
             </div>
-          </div>
-        </div>
-
-        {/* Scroll Indicator */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-          <div className="w-6 h-10 border-2 border-white/30 rounded-full flex items-start justify-center p-2">
-            <div className="w-1 h-2 bg-white/50 rounded-full animate-pulse" />
           </div>
         </div>
       </section>
@@ -385,6 +381,101 @@ export default function Home() {
             Start Your Journey
             <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
           </button>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="relative py-24 bg-gradient-to-b from-dark-400 to-dark-300">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <div className="inline-block mb-4 px-4 py-2 rounded-full bg-primary-600/20 border border-primary-500/30">
+              <span className="text-primary-300 text-sm font-medium">❓ Got Questions?</span>
+            </div>
+            <h2 className="text-3xl sm:text-5xl font-bold text-white mb-4">
+              Frequently Asked Questions
+            </h2>
+            <p className="text-gray-400 text-lg">
+              Everything you need to know about DSA Tracker
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            {[
+              {
+                question: 'Is DSA Tracker free to use?',
+                answer: 'Yes! DSA Tracker is completely free to use with all core features including problem tracking, analytics, friend comparison, and AI recommendations. We believe in making quality learning tools accessible to everyone.',
+              },
+              {
+                question: 'How does the import feature work?',
+                answer: 'You can import your solved problems from platforms like LeetCode, Codeforces, and CodeChef. Simply connect your account or upload a CSV file, and all your problems will be automatically added with proper categorization and XP calculation.',
+              },
+              {
+                question: 'What is the revision system?',
+                answer: 'Our automated revision system schedules problems for review at 3, 7, and 30-day intervals. This spaced repetition technique helps strengthen your understanding and improves long-term retention of DSA concepts.',
+              },
+              {
+                question: 'How is XP and level calculated?',
+                answer: 'You earn XP based on problem difficulty (Easy: 10 XP, Medium: 25 XP, Hard: 50 XP) with time bonuses. Your level increases as you accumulate more XP. The system uses a quadratic formula to ensure meaningful progression at all stages.',
+              },
+              {
+                question: 'Can I track problems from any platform?',
+                answer: 'Absolutely! You can manually add problems from any platform (LeetCode, HackerRank, CodeChef, Codeforces, etc.) or use our CSV import feature. We support all major competitive programming platforms.',
+              },
+              {
+                question: 'How does friend comparison work?',
+                answer: 'Add friends by their username and compare your progress side-by-side. You can see their problem-solving patterns, streaks, difficulty distribution, and topic coverage. It\'s a great way to stay motivated and learn together!',
+              },
+              {
+                question: 'What kind of AI recommendations do I get?',
+                answer: 'Our AI analyzes your solving patterns, weak topics, and recent performance to suggest personalized problems. It identifies gaps in your knowledge and recommends problems that will help you improve most effectively.',
+              },
+              {
+                question: 'Is my data secure and private?',
+                answer: 'Yes! We take data security seriously. All data is encrypted, stored securely, and never shared with third parties. You have full control over your account and can export or delete your data anytime.',
+              },
+            ].map((faq, index) => (
+              <div
+                key={index}
+                className="bg-dark-200/50 backdrop-blur-sm border border-white/10 rounded-xl overflow-hidden hover:border-primary-500/30 transition-all duration-300"
+              >
+                <button
+                  onClick={() => setOpenFaqIndex(openFaqIndex === index ? null : index)}
+                  className="w-full flex items-center justify-between p-6 text-left hover:bg-white/5 transition-colors"
+                >
+                  <div className="flex items-center gap-4 flex-1">
+                    <div className="w-10 h-10 rounded-lg bg-primary-600/20 flex items-center justify-center flex-shrink-0">
+                      <HelpCircle className="w-5 h-5 text-primary-400" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-white">{faq.question}</h3>
+                  </div>
+                  <ChevronDown
+                    className={`w-5 h-5 text-gray-400 transition-transform duration-300 flex-shrink-0 ${
+                      openFaqIndex === index ? 'rotate-180' : ''
+                    }`}
+                  />
+                </button>
+                <div
+                  className={`overflow-hidden transition-all duration-300 ${
+                    openFaqIndex === index ? 'max-h-96' : 'max-h-0'
+                  }`}
+                >
+                  <div className="px-6 pb-6 pl-20">
+                    <p className="text-gray-400 leading-relaxed">{faq.answer}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-12 text-center">
+            <p className="text-gray-400 mb-4">Still have questions?</p>
+            <button
+              onClick={() => router.push('/about')}
+              className="text-primary-400 hover:text-primary-300 font-semibold transition-colors"
+            >
+              Visit our About page →
+            </button>
+          </div>
         </div>
       </section>
 

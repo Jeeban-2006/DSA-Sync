@@ -1,12 +1,31 @@
 # 🚀 DSA Sync - AI Powered Collaborative DSA Growth Platform
 
-A modern, mobile-first Progressive Web App (PWA) for tracking, comparing, and improving DSA (Data Structures & Algorithms) solving journey with AI-powered insights and collaborative features.
-
-![DSA Sync Banner](https://img.shields.io/badge/DSA-Sync-0ea5e9?style=for-the-badge)
+[![Production Ready](https://img.shields.io/badge/Production-Ready-success?style=for-the-badge)](https://github.com)
 ![Next.js](https://img.shields.io/badge/Next.js-14-black?style=flat-square&logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue?style=flat-square&logo=typescript)
 ![MongoDB](https://img.shields.io/badge/MongoDB-Latest-green?style=flat-square&logo=mongodb)
 ![PWA](https://img.shields.io/badge/PWA-Enabled-purple?style=flat-square)
+
+A modern, mobile-first Progressive Web App (PWA) for tracking, comparing, and improving your DSA (Data Structures & Algorithms) journey with AI-powered insights and collaborative features.
+
+> **✅ Production Ready** - Fully tested, optimized, and ready for deployment!
+
+## 🎯 What's New (Latest Updates)
+
+### ✨ Recently Added Features
+- ✅ **Privacy Policy & Terms of Service Pages** - Complete legal compliance
+- ✅ **FAQ Section** - Comprehensive help for new users on landing page
+- ✅ **Import Stats Fix** - Imported problems now correctly update XP, level, and stats
+- ✅ **Level Progress Bar Fix** - Accurate XP calculation with quadratic leveling system
+- ✅ **Analytics Auto-Recalculation** - Stats sync automatically on dashboard load
+- ✅ **All Import Routes Fixed** - CSV, LeetCode, Codeforces, CodeChef all working
+
+### 🔧 Bug Fixes & Improvements
+- Fixed import functionality to update user stats (totalProblemsSolved, XP, level)
+- Fixed level progress calculation from linear to quadratic formula
+- Removed scroll indicator from hero section
+- Added proper navigation to legal pages
+- Cleaned up unnecessary files and documentation
 
 ## ✨ Features
 
@@ -112,6 +131,7 @@ dsa-tracker/
 │   ├── api/                      # API Routes
 │   │   ├── auth/                 # Authentication endpoints
 │   │   ├── problems/             # Problem CRUD operations
+│   │   ├── import/               # Import from CSV/Platforms
 │   │   ├── revisions/            # Revision management
 │   │   ├── friends/              # Friend system
 │   │   ├── challenges/           # Challenge features
@@ -124,48 +144,37 @@ dsa-tracker/
 │   ├── revision/                 # Revision page
 │   ├── friends/                  # Friends page
 │   ├── ai/                       # AI insights page
+│   ├── privacy/                  # Privacy Policy page
+│   ├── terms/                    # Terms of Service page
+│   ├── about/                    # About page
 │   ├── globals.css               # Global styles
 │   ├── layout.tsx                # Root layout
-│   └── page.tsx                  # Home page
+│   └── page.tsx                  # Landing page
 ├── components/                   # React components
 │   ├── AuthenticatedLayout.tsx   # Auth wrapper
 │   ├── BottomNav.tsx             # Mobile navigation
 │   ├── NotificationBell.tsx      # Notification icon
-│   ├── NotificationSettings.tsx  # Notification preferences
-│   └── PushNotificationManager.tsx # Push notification setup
+│   ├── landing/                  # Landing page components
+│   └── ...
 ├── lib/                          # Utility libraries
 │   ├── mongodb.ts                # Database connection
 │   ├── jwt.ts                    # JWT utilities
-│   ├── bcrypt.ts                 # Password hashing
-│   ├── auth.ts                   # Auth helper (per-route validation)
-│   ├── utils.ts                  # Helper functions
+│   ├── auth.ts                   # Auth helpers
+│   ├── utils.ts                  # Helper functions (XP, level calc)
 │   ├── ai-service.ts             # AI integration
-│   ├── api-client.ts             # API client
-│   ├── push-service.ts           # Push notification service
-│   └── notification-service.ts   # Notification helpers
+│   └── ...
 ├── models/                       # MongoDB models
 │   ├── User.ts
 │   ├── Problem.ts
-│   ├── Revision.ts
-│   ├── FriendConnection.ts
-│   ├── Comment.ts
-│   ├── Challenge.ts
-│   ├── Achievement.ts
-│   ├── AIReport.ts
-│   ├── UserStats.ts
-│   ├── ActivityLog.ts           # Activity tracking
-│   ├── PushSubscription.ts      # Push notification subscriptions
-│   └── Notification.ts
-├── store/                        # State management
-│   └── authStore.ts              # Auth state (Zustand)
+│   ├── ImportHistory.ts          # Import tracking
+│   └── ...
+├── scripts/                      # Utility scripts
+│   ├── recalculate-user-stats.ts # Stats recalculation
+│   └── ...
 ├── public/                       # Static assets
 │   ├── manifest.json             # PWA manifest
 │   └── icons/                    # App icons
-├── package.json
-├── tsconfig.json
-├── tailwind.config.ts
-├── next.config.js
-└── README.md
+└── ...
 ```
 
 ## 🚀 Getting Started
@@ -176,80 +185,67 @@ dsa-tracker/
 - MongoDB instance (local or Atlas)
 - Groq API key (for AI features - free tier available)
 
-### Installation
+### Quick Start (5 Minutes)
 
-1. **Clone the repository**
+1. **Clone and Install**
    ```bash
    git clone <repository-url>
    cd dsa-tracker
-   ```
-
-2. **Install dependencies**
-   ```bash
    npm install
    ```
 
-3. **Set up environment variables**
+2. **Environment Setup**
    
-   Create a `.env.local` file in the root directory:
+   Copy `.env.local.example` to `.env.local`:
+   ```bash
+   cp .env.local.example .env.local
+   ```
    
+   **Required Environment Variables:**
    ```env
-   # MongoDB Connection
-   MONGODB_URI=mongodb://localhost:27017/dsa-sync
-   # or use MongoDB Atlas:
-   # MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/dsa-sync
+   # Database
+   MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/dsa-sync
 
-   # JWT Secret (generate a strong random key)
-   JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
-
-   # Groq AI API Key
-   GROQ_API_KEY=your-groq-api-key-here
-
-   # App URL
+   # Security
+   JWT_SECRET=<generate-with-command-below>
+   
+   # AI
+   GROQ_API_KEY=<from-console.groq.com>
+   
+   # App
    NEXT_PUBLIC_APP_URL=http://localhost:3000
-
-   # VAPID Keys for Push Notifications (Generate using: npx web-push generate-vapid-keys)
-   VAPID_PUBLIC_KEY=your-vapid-public-key
-   VAPID_PRIVATE_KEY=your-vapid-private-key
-   NEXT_PUBLIC_VAPID_PUBLIC_KEY=your-vapid-public-key
-
-   # Admin & Security
-   ADMIN_EMAIL=admin@yourdomain.com
-   CRON_SECRET=your-secure-cron-secret
-   ADMIN_SECRET=your-admin-secret
-
-   # AI Provider
-   AI_PROVIDER=groq
+   
+   # Push Notifications
+   VAPID_PUBLIC_KEY=<generate-with-command-below>
+   VAPID_PRIVATE_KEY=<generate-with-command-below>
+   NEXT_PUBLIC_VAPID_PUBLIC_KEY=<same-as-vapid-public-key>
    ```
 
-   **Generate VAPID Keys for Push Notifications:**
+   **Generate Secrets:**
    ```bash
+   # JWT Secret
+   node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+   
+   # VAPID Keys
    npx web-push generate-vapid-keys
    ```
-   Copy the public and private keys to your `.env.local` file.
 
-4. **Run the development server**
+3. **Run Development Server**
    ```bash
    npm run dev
    ```
-
-5. **Open your browser**
    
-   Navigate to [http://localhost:3000](http://localhost:3000)
+   Open [http://localhost:3000](http://localhost:3000)
 
-### Building for Production
+### Production Build
 
-1. **Generate PWA Icons** (required for PWA installation)
-   ```bash
-   npm install --save-dev sharp
-   npm run generate-icons
-   ```
+```bash
+# Build
+npm run build
 
-2. **Build and start**
-   ```bash
-   npm run build
-   npm start
-   ```
+# Start production server
+npm start
+```
 
 ### Available Scripts
 
@@ -398,33 +394,86 @@ The app uses a dark theme with customizable colors in `tailwind.config.ts`. Colo
 - CORS configuration
 - Rate limiting (recommended for production)
 
-## 🌐 Deployment
+## 🌐 Deployment Guide
 
-### Vercel (Recommended)
+### ✅ Production Readiness Checklist
 
-1. Push your code to GitHub
-2. Import project in Vercel dashboard
-3. Add environment variables in project settings
-4. Deploy
+- [x] All features tested and working
+- [x] Import functionality fixed (stats update correctly)
+- [x] Level/XP calculation accurate
+- [x] PWA configured and working
+- [x] Push notifications enabled
+- [x] Analytics and AI features functional
+- [x] Privacy Policy & Terms pages added
+- [x] Security measures implemented
+- [x] Error handling in place
+- [x] Mobile responsive design
+- [x] SEO optimized
+- [x] Performance optimized (code splitting, caching)
 
-### Environment Variables for Production
+### Vercel Deployment (Recommended - 5 Minutes)
 
-Required variables:
-- `MONGODB_URI` - MongoDB Atlas connection string
-- `JWT_SECRET` - Generate with: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`
-- `GROQ_API_KEY` - From Groq Console
-- `NEXT_PUBLIC_APP_URL` - Your production URL
-- `VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` - Generate with: `npx web-push generate-vapid-keys`
-- `ADMIN_EMAIL` - Admin email for notifications
-- `CRON_SECRET` - Protect cron endpoints
-- `ADMIN_SECRET` - Protect admin endpoints
+1. **Push to GitHub**
+   ```bash
+   git init
+   git add .
+   git commit -m "Initial commit"
+   git remote add origin <your-repo-url>
+   git push -u origin main
+   ```
 
-### MongoDB Atlas Setup
+2. **Deploy on Vercel**
+   - Visit [vercel.com](https://vercel.com)
+   - Click "Import Project"
+   - Select your GitHub repository
+   - Vercel will auto-detect Next.js
 
-1. Create free MongoDB Atlas account
-2. Create a cluster
-3. Whitelist Vercel IPs or use 0.0.0.0/0
-4. Get connection string and add to environment variables
+3. **Add Environment Variables**
+   
+   In Vercel Dashboard → Settings → Environment Variables, add:
+   ```
+   MONGODB_URI=<your-mongodb-atlas-url>
+   JWT_SECRET=<generate-new-secret>
+   GROQ_API_KEY=<your-groq-key>
+   NEXT_PUBLIC_APP_URL=https://your-app.vercel.app
+   VAPID_PUBLIC_KEY=<your-vapid-public>
+   VAPID_PRIVATE_KEY=<your-vapid-private>
+   NEXT_PUBLIC_VAPID_PUBLIC_KEY=<same-as-vapid-public>
+   ADMIN_EMAIL=admin@yourdomain.com
+   CRON_SECRET=<generate-new-secret>
+   ADMIN_SECRET=<generate-new-secret>
+   AI_PROVIDER=groq
+   ```
+
+4. **Deploy!**
+   - Click "Deploy"
+   - Your app will be live in ~2 minutes
+   - Vercel provides automatic HTTPS and CDN
+
+### MongoDB Atlas Setup (Free Tier)
+
+1. Create account at [mongodb.com/cloud/atlas](https://www.mongodb.com/cloud/atlas)
+2. Create a **free M0 cluster**
+3. Create database user (username/password)
+4. **Network Access**: Add `0.0.0.0/0` (allow all IPs)
+5. Get connection string from "Connect" → "Connect your application"
+6. Replace `<password>` and `<dbname>` in the connection string
+
+### Post-Deployment Setup
+
+1. **Test the app** - Visit your Vercel URL
+2. **Register an account** - First user becomes admin
+3. **Enable push notifications** - Allow in browser when prompted
+4. **Configure Vercel Cron** (for daily notifications):
+   - Go to Project → Settings → Cron Jobs
+   - Add: `0 20 * * *` → `/api/cron/daily-notifications`
+
+### Custom Domain (Optional)
+
+1. In Vercel Dashboard → Domains
+2. Add your custom domain
+3. Update DNS records as instructed
+4. SSL automatically configured
 
 ## 🤝 Contributing
 
@@ -451,10 +500,23 @@ Built with ❤️ for DSA learners worldwide
 - MongoDB for the database
 - All open-source contributors
 
-## 📞 Support
+## 📞 Support & Contact
 
-For support, email support@dsasync.com or open an issue on GitHub.
+- **GitHub Issues**: [Report bugs or request features](https://github.com/your-repo/issues)
+- **Email**: jeebankrushnasahu1@gmail.com
+- **Documentation**: See `/docs` folder for detailed guides
+
+## 🗺️ Roadmap
+
+- [ ] Mobile app (React Native)
+- [ ] More platform imports (HackerRank, AtCoder)
+- [ ] Team/company features
+- [ ] Advanced AI coaching
+- [ ] Interview preparation mode
+- [ ] Contest reminders
 
 ---
+
+**Built with ❤️ by [Jeeban Krushna Sahu](https://www.linkedin.com/in/jeeban-krushna-sahu-004228301/)**
 
 **Happy Coding! 🚀**

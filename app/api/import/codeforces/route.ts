@@ -4,6 +4,8 @@ import dbConnect from '@/lib/mongodb';
 import Problem from '@/models/Problem';
 import ImportHistory from '@/models/ImportHistory';
 import ActivityLog from '@/models/ActivityLog';
+import User from '@/models/User';
+import { calculateXP, calculateLevel } from '@/lib/utils';
 import { randomUUID } from 'crypto';
 
 // Rate limiting
@@ -236,9 +238,25 @@ export async function POST(request: NextRequest) {
 
     // Bulk insert new problems
     let insertedCount = 0;
+    let totalXPGained = 0;
     if (validProblems.length > 0) {
       const result = await Problem.insertMany(validProblems, { ordered: false });
       insertedCount = result.length;
+
+      // Calculate XP for all imported problems
+      for (const problem of validProblems) {
+        totalXPGained += calculateXP(problem.difficulty, problem.timeTaken || 0);
+      }
+
+      // Update user stats
+      const user = await User.findById(userId);
+      if (user) {
+        user.totalProblemsSolved += insertedCount;
+        user.xp += totalXPGained;
+        user.level = calculateLevel(user.xp);
+        user.lastActiveDate = new Date();
+        await user.save();
+      }
     }
 
     // Save import history
