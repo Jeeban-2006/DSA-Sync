@@ -137,6 +137,17 @@ class ApiClient {
     return this.request('/api/analytics');
   }
 
+  // GitHub
+  async starGithubRepo() {
+    return this.request('/api/github/star', {
+      method: 'POST',
+    });
+  }
+
+  async getCompanyProblems(slug: string) {
+    return this.request(`/api/companies/${slug}`);
+  }
+
   // Revisions
   async getRevisions() {
     return this.request('/api/revisions');
@@ -288,6 +299,13 @@ class ApiClient {
     return this.request('/api/ai/confidence');
   }
 
+  async analyzeDSAProblem(input: string) {
+    return this.request('/api/ai/analyze-problem', {
+      method: 'POST',
+      body: JSON.stringify({ input }),
+    });
+  }
+
   // Import
   async downloadTemplate() {
     if (typeof window !== 'undefined') {
@@ -343,6 +361,26 @@ class ApiClient {
 
   async getImportHistory(limit = 10, skip = 0) {
     return this.request(`/api/import/history?limit=${limit}&skip=${skip}`);
+  }
+
+  // Master DSA
+  async getMasterSheets() {
+    return this.request('/api/master-dsa/sheets');
+  }
+
+  async getMasterSheetData(slug: string) {
+    return this.request(`/api/master-dsa/sheets/${slug}`);
+  }
+
+  async updateMasterProgress(data: any) {
+    return this.request('/api/master-dsa/progress', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getMasterProgressSummary() {
+    return this.request('/api/master-dsa/progress/summary');
   }
 }
 

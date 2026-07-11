@@ -40,8 +40,13 @@ async function connectDB(): Promise<typeof mongoose> {
 
   try {
     cached.conn = await cached.promise;
-  } catch (e) {
+  } catch (e: any) {
     cached.promise = null;
+    if (e.message && e.message.includes('ECONNREFUSED')) {
+      console.error('❌ MongoDB Connection Refused. This usually means your IP address is not whitelisted in MongoDB Atlas Network Access.');
+    } else {
+      console.error('❌ MongoDB Connection Error:', e);
+    }
     throw e;
   }
 

@@ -5,9 +5,10 @@ import { authenticateRequest } from '@/lib/auth';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const auth = await authenticateRequest();
     if (!auth.authenticated || !auth.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -22,7 +23,7 @@ export async function POST(
     }
 
     const connection = await FriendConnection.findOne({
-      _id: params.id,
+      _id: id,
       recipientId: auth.user.userId,
       status: 'Pending',
     });

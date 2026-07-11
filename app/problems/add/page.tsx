@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import AuthenticatedLayout from '@/components/AuthenticatedLayout';
 import BottomNav from '@/components/BottomNav';
 import { api } from '@/lib/api-client';
@@ -17,8 +17,11 @@ const TOPICS = [
 
 const PLATFORMS = ['LeetCode', 'Codeforces', 'CodeChef', 'HackerRank', 'GeeksForGeeks', 'InterviewBit', 'Other'];
 
-export default function AddProblemPage() {
+function AddProblemContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const editId = searchParams?.get('edit');
+
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     problemName: '',
@@ -37,6 +40,40 @@ export default function AddProblemPage() {
     markedForRevision: false,
   });
 
+  useEffect(() => {
+    if (editId) {
+      loadProblem(editId);
+    }
+  }, [editId]);
+
+  const loadProblem = async (id: string) => {
+    setLoading(true);
+    const { data, error } = await api.getProblem(id);
+    if (error) {
+      toast.error('Failed to load problem');
+      router.push('/problems');
+      return;
+    }
+    const problem = (data as any).problem;
+    setFormData({
+      problemName: problem.problemName || '',
+      platform: problem.platform || 'LeetCode',
+      problemLink: problem.problemLink || '',
+      difficulty: problem.difficulty || 'Medium',
+      topic: problem.topic || 'Array',
+      subtopic: problem.subtopic || '',
+      timeTaken: problem.timeTaken?.toString() || '',
+      dateSolved: problem.dateSolved ? new Date(problem.dateSolved).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+      status: problem.status || 'Solved',
+      approachSummary: problem.approachSummary || '',
+      mistakesFaced: problem.mistakesFaced || '',
+      keyLearning: problem.keyLearning || '',
+      codeSnippet: problem.codeSnippet || '',
+      markedForRevision: problem.markedForRevision || false,
+    });
+    setLoading(false);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -47,20 +84,35 @@ export default function AddProblemPage() {
 
     setLoading(true);
 
-    const { data, error } = await api.addProblem({
-      ...formData,
-      timeTaken: parseInt(formData.timeTaken),
-    });
+    if (editId) {
+      const { data, error } = await api.updateProblem(editId, {
+        ...formData,
+        timeTaken: parseInt(formData.timeTaken),
+      });
 
-    if (error) {
-      toast.error(error);
-      setLoading(false);
-      return;
+      if (error) {
+        toast.error(error);
+        setLoading(false);
+        return;
+      }
+      toast.success('Problem updated successfully!');
+      router.push(`/problems/${editId}`);
+    } else {
+      const { data, error } = await api.addProblem({
+        ...formData,
+        timeTaken: parseInt(formData.timeTaken),
+      });
+
+      if (error) {
+        toast.error(error);
+        setLoading(false);
+        return;
+      }
+
+      const resultData = data as any;
+      toast.success(`Problem added! +${resultData.xpGained || 0} XP`);
+      router.push('/dashboard');
     }
-
-    const resultData = data as any;
-    toast.success(`Problem added! +${resultData.xpGained || 0} XP`);
-    router.push('/dashboard');
   };
 
   return (
@@ -76,8 +128,8 @@ export default function AddProblemPage() {
               <ArrowLeft className="w-5 h-5 text-white" />
             </button>
             <div>
-              <h1 className="text-2xl font-bold text-white">Add Problem</h1>
-              <p className="text-primary-100 text-sm">Log your DSA progress</p>
+              <h1 className="text-2xl font-bold text-white">{editId ? 'Edit Problem' : 'Add Problem'}</h1>
+              <p className="text-primary-100 text-sm">{editId ? 'Update your solution' : 'Log your DSA progress'}</p>
             </div>
           </div>
         </div>
@@ -267,24 +319,22 @@ export default function AddProblemPage() {
             </label>
           </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="btn-primary w-full flex items-center justify-center gap-2 sticky bottom-20 shadow-2xl"
-          >
-            {loading ? (
-              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-            ) : (
-              <>
-                <Save className="w-5 h-5" />
-                Save Problem
-              </>
-            )}
+          <button type="submit" disabled={loading} className="btn-primary w-full flex items-center justify-center gap-2 sticky bottom-20 shadow-2xl">
+            <Save className="w-5 h-5" />
+            {loading ? 'Saving...' : editId ? 'Save Changes' : 'Save Problem'}
           </button>
         </form>
       </div>
 
       <BottomNav />
     </AuthenticatedLayout>
+  );
+}
+
+export default function AddProblemPage() {
+  return (
+    <Suspense fallback={<div className="flex h-screen items-center justify-center text-gray-400">Loading...</div>}>
+      <AddProblemContent />
+    </Suspense>
   );
 }

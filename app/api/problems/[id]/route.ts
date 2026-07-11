@@ -5,9 +5,10 @@ import { authenticateRequest } from '@/lib/auth';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const auth = await authenticateRequest();
     if (!auth.authenticated || !auth.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -16,7 +17,7 @@ export async function GET(
     await connectDB();
 
     const problem = await Problem.findOne({
-      _id: params.id,
+      _id: id,
       userId: auth.user.userId,
     });
 
@@ -36,9 +37,10 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const auth = await authenticateRequest();
     if (!auth.authenticated || !auth.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -49,7 +51,7 @@ export async function PUT(
     const updates = await request.json();
 
     const problem = await Problem.findOneAndUpdate(
-      { _id: params.id, userId: auth.user.userId },
+      { _id: id, userId: auth.user.userId },
       { $set: updates },
       { new: true }
     );
@@ -73,9 +75,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const auth = await authenticateRequest();
     if (!auth.authenticated || !auth.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -84,12 +87,25 @@ export async function DELETE(
     await connectDB();
 
     const problem = await Problem.findOneAndDelete({
-      _id: params.id,
+      _id: id,
       userId: auth.user.userId,
     });
 
     if (!problem) {
       return NextResponse.json({ error: 'Problem not found' }, { status: 404 });
+    }
+
+    // Handle reverse orphan for Master DSA
+    // If this problem was linked from Master DSA progress, unlink it
+    try {
+      // Import dynamically to avoid circular dependencies if any
+      const UserMasterProgress = (await import('@/models/UserMasterProgress')).default;
+      await UserMasterProgress.updateMany(
+        { linkedProblemId: id },
+        { $set: { done: false, linkedProblemId: null } }
+      );
+    } catch (e) {
+      console.error('Error unlinking UserMasterProgress:', e);
     }
 
     return NextResponse.json({ message: 'Problem deleted successfully' });

@@ -15,6 +15,15 @@ export interface IUser extends Document {
   xp: number;
   lastActiveDate?: Date;
   achievements: string[];
+  isPremium: boolean;
+  github?: {
+    accessToken: string;
+    username: string;
+    repository: string;
+    autoCommit: boolean;
+    lastSync?: Date;
+  };
+  fcmTokens?: string[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -34,6 +43,15 @@ const UserSchema = new Schema<IUser>(
     xp: { type: Number, default: 0 },
     lastActiveDate: { type: Date },
     achievements: [{ type: String }],
+    isPremium: { type: Boolean, default: false },
+    github: {
+      accessToken: { type: String },
+      username: { type: String },
+      repository: { type: String, default: 'dsa-sync-submissions' },
+      autoCommit: { type: Boolean, default: true },
+      lastSync: { type: Date }
+    },
+    fcmTokens: [{ type: String }]
   },
   { timestamps: true }
 );

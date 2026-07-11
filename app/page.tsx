@@ -8,6 +8,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import dynamic from 'next/dynamic';
 import LandingNav from '@/components/landing/LandingNav';
 import LandingFooter from '@/components/landing/LandingFooter';
+import RoadmapSection from '@/components/landing/RoadmapSection';
 import {
   ArrowRight,
   Code2,
@@ -25,6 +26,9 @@ import {
   Trophy,
   ChevronDown,
   HelpCircle,
+  Github,
+  Building2,
+  LayoutTemplate
 } from 'lucide-react';
 
 // Dynamically import Three.js component
@@ -45,12 +49,8 @@ export default function Home() {
   const aiRef = useRef<HTMLDivElement>(null);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
 
-  useEffect(() => {
-    // Redirect to dashboard if already logged in
-    if (hasHydrated && isAuthenticated) {
-      router.push('/dashboard');
-    }
-  }, [hasHydrated, isAuthenticated, router]);
+  // User can now view landing page while authenticated
+  // Redirect to dashboard removed.
 
   useEffect(() => {
     // Smooth scrolling
@@ -207,6 +207,24 @@ export default function Home() {
                 description: 'Earn XP, level up, and unlock achievements as you progress through your DSA journey.',
                 color: 'from-yellow-500 to-orange-500',
               },
+              {
+                icon: Github,
+                title: 'GitHub Auto-Sync',
+                description: 'Connect your GitHub account to automatically push your solutions to a beautifully formatted repository.',
+                color: 'from-gray-500 to-gray-700',
+              },
+              {
+                icon: Building2,
+                title: 'Companywise Prep',
+                description: 'Unlock premium company-specific sheets. Prepare for FAANG and top tech companies with curated problem lists.',
+                color: 'from-emerald-400 to-teal-500',
+              },
+              {
+                icon: LayoutTemplate,
+                title: 'NeetCode Aesthetics',
+                description: 'Enjoy a premium, distraction-free UI inspired by NeetCode to keep you focused on solving problems.',
+                color: 'from-cyan-400 to-blue-600',
+              },
             ].map((feature, index) => (
               <div
                 key={index}
@@ -225,6 +243,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Roadmap Section */}
+      <RoadmapSection />
 
       {/* Collaboration Section */}
       <section

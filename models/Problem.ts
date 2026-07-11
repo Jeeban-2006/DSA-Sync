@@ -26,7 +26,7 @@ export interface IProblem extends Document {
   timesAttempted: number;
   // Import-related fields
   imported: boolean;
-  importSource?: 'CSV' | 'Codeforces' | 'LeetCode' | 'CodeChef';
+  importSource?: 'CSV' | 'Codeforces' | 'LeetCode' | 'CodeChef' | 'Master DSA';
   externalId?: string;
   importBatchId?: string;
   importedAt?: Date;
@@ -67,7 +67,7 @@ const ProblemSchema = new Schema<IProblem>(
     timesAttempted: { type: Number, default: 1 },
     // Import fields
     imported: { type: Boolean, default: false },
-    importSource: { type: String, enum: ['CSV', 'Codeforces', 'LeetCode', 'CodeChef'] },
+    importSource: { type: String, enum: ['CSV', 'Codeforces', 'LeetCode', 'CodeChef', 'Master DSA'] },
     externalId: { type: String },
     importBatchId: { type: String },
     importedAt: { type: Date },

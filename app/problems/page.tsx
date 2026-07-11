@@ -430,9 +430,9 @@ export default function ProblemsPage() {
             </div>
           ) : (
             filteredProblems.map((problem) => (
-              <Link
+              <div
                 key={problem._id}
-                href={`/problems/${problem._id}`}
+                onClick={() => router.push(`/problems/${problem._id}`)}
                 className="block card hover:border-primary-500/50 transition-all cursor-pointer"
               >
                 <div className="flex items-start gap-3">
@@ -517,7 +517,7 @@ export default function ProblemsPage() {
                     </div>
                   </div>
                 </div>
-              </Link>
+              </div>
             ))
           )}
         </div>

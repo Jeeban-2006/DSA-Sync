@@ -7,9 +7,10 @@ import { authenticateRequest } from '@/lib/auth';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const auth = await authenticateRequest();
     if (!auth.authenticated || !auth.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -20,7 +21,7 @@ export async function POST(
     const { performanceNotes, timeTaken } = await request.json();
 
     const revision = await Revision.findOneAndUpdate(
-      { _id: params.id, userId: auth.user.userId },
+      { _id: id, userId: auth.user.userId },
       {
         $set: {
           status: 'Completed',

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/authStore';
+import FloatingDSAAnalyzer from './FloatingDSAAnalyzer';
 
 export default function AuthenticatedLayout({
   children,
@@ -45,5 +46,10 @@ export default function AuthenticatedLayout({
     return null;
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      {children}
+      <FloatingDSAAnalyzer />
+    </>
+  );
 }

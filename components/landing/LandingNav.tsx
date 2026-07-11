@@ -1,13 +1,20 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { Menu, X, Code2 } from 'lucide-react';
+
+import { useAuthStore } from '@/store/authStore';
 
 export default function LandingNav() {
   const router = useRouter();
+  const pathname = usePathname();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState('hero');
+
+  const isAboutPage = pathname === '/about';
 
   useEffect(() => {
     const handleScroll = () => {
@@ -18,13 +25,56 @@ export default function LandingNav() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // ScrollSpy logic
+  useEffect(() => {
+    const sections = ['hero', 'features', 'roadmap', 'collaboration', 'ai'];
+    
+    const observerOptions = {
+      root: null,
+      rootMargin: '-80px 0px -60% 0px', // Adjusted to account for navbar height and better triggering
+      threshold: 0
+    };
+
+    const observerCallback = (entries: IntersectionObserverEntry[]) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          setActiveSection(entry.target.id);
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver(observerCallback, observerOptions);
+
+    sections.forEach(sectionId => {
+      const el = document.getElementById(sectionId);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
   const scrollToSection = (id: string) => {
+    if (isAboutPage) {
+      router.push(`/#${id}`);
+      setIsMobileMenuOpen(false);
+      return;
+    }
+
     const element = document.getElementById(id);
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+      const topPos = element.getBoundingClientRect().top + window.scrollY - 80; // Subtract nav height (80px)
+      window.scrollTo({ top: topPos, behavior: 'smooth' });
       setIsMobileMenuOpen(false);
     }
   };
+
+  const navLinks = [
+    { id: 'hero', label: 'Home' },
+    { id: 'features', label: 'Features' },
+    { id: 'roadmap', label: 'Roadmap' },
+    { id: 'collaboration', label: 'Collaboration' },
+    { id: 'ai', label: 'AI Powered' },
+  ];
 
   return (
     <nav
@@ -47,53 +97,49 @@ export default function LandingNav() {
           </div>
 
           {/* Desktop Menu - Centered */}
-          <div className="hidden lg:flex items-center gap-8 flex-1 justify-center">
-            <button
-              onClick={() => scrollToSection('hero')}
-              className="text-gray-300 hover:text-cyan-400 transition-colors font-medium"
-            >
-              Home
-            </button>
-            <button
-              onClick={() => scrollToSection('features')}
-              className="text-gray-300 hover:text-cyan-400 transition-colors font-medium"
-            >
-              Features
-            </button>
-            <button
-              onClick={() => scrollToSection('collaboration')}
-              className="text-gray-300 hover:text-cyan-400 transition-colors font-medium"
-            >
-              Collaboration
-            </button>
-            <button
-              onClick={() => scrollToSection('ai')}
-              className="text-gray-300 hover:text-cyan-400 transition-colors font-medium"
-            >
-              AI Powered
-            </button>
+          <div className="hidden lg:flex items-center gap-6 flex-1 justify-center">
+            {navLinks.map(link => (
+              <button
+                key={link.id}
+                onClick={() => scrollToSection(link.id)}
+                className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-300 ${
+                  !isAboutPage && activeSection === link.id
+                    ? 'text-cyan-400 bg-cyan-500/10'
+                    : 'text-gray-300 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                {link.label}
+              </button>
+            ))}
             <button
               onClick={() => router.push('/about')}
-              className="text-gray-300 hover:text-cyan-400 transition-colors font-medium"
+              className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-300 ${
+                isAboutPage
+                  ? 'text-cyan-400 bg-cyan-500/10'
+                  : 'text-gray-300 hover:text-white hover:bg-white/5'
+              }`}
             >
               About
-            </button>
-            <button
-              onClick={() => router.push('/auth/login')}
-              className="text-gray-300 hover:text-cyan-400 transition-colors font-medium"
-            >
-              Sign In
             </button>
           </div>
 
           {/* CTA Button */}
           <div className="hidden lg:flex items-center gap-4 flex-shrink-0">
-            <button
-              onClick={() => router.push('/auth/register')}
-              className="px-8 py-3 bg-gradient-to-r from-cyan-500 to-cyan-400 text-dark-400 rounded-lg hover:shadow-xl hover:shadow-cyan-500/40 transition-all font-semibold text-sm"
-            >
-              Get Started
-            </button>
+            {isAuthenticated ? (
+              <button
+                onClick={() => router.push('/dashboard')}
+                className="px-6 py-2.5 bg-gradient-to-r from-cyan-500 to-cyan-400 text-dark-400 rounded-lg hover:shadow-xl hover:shadow-cyan-500/40 transition-all font-semibold text-sm"
+              >
+                Dashboard
+              </button>
+            ) : (
+              <button
+                onClick={() => router.push('/auth/login')}
+                className="px-6 py-2.5 bg-gradient-to-r from-cyan-500 to-cyan-400 text-dark-400 rounded-lg hover:shadow-xl hover:shadow-cyan-500/40 transition-all font-semibold text-sm"
+              >
+                Sign In
+              </button>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -110,48 +156,47 @@ export default function LandingNav() {
       {isMobileMenuOpen && (
         <div className="lg:hidden bg-dark-300/95 backdrop-blur-xl border-t border-white/10">
           <div className="px-4 py-4 space-y-2">
+            {navLinks.map(link => (
+              <button
+                key={link.id}
+                onClick={() => scrollToSection(link.id)}
+                className={`block w-full text-left px-4 py-3 rounded-lg transition-colors ${
+                  !isAboutPage && activeSection === link.id
+                    ? 'text-cyan-400 bg-cyan-500/10'
+                    : 'text-gray-300 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                {link.label}
+              </button>
+            ))}
             <button
-              onClick={() => scrollToSection('hero')}
-              className="block w-full text-left px-4 py-3 text-gray-300 hover:text-cyan-400 hover:bg-white/5 rounded-lg transition-colors"
-            >
-              Home
-            </button>
-            <button
-              onClick={() => scrollToSection('features')}
-              className="block w-full text-left px-4 py-3 text-gray-300 hover:text-cyan-400 hover:bg-white/5 rounded-lg transition-colors"
-            >
-              Features
-            </button>
-            <button
-              onClick={() => scrollToSection('collaboration')}
-              className="block w-full text-left px-4 py-3 text-gray-300 hover:text-cyan-400 hover:bg-white/5 rounded-lg transition-colors"
-            >
-              Collaboration
-            </button>
-            <button
-              onClick={() => scrollToSection('ai')}
-              className="block w-full text-left px-4 py-3 text-gray-300 hover:text-cyan-400 hover:bg-white/5 rounded-lg transition-colors"
-            >
-              AI Powered
-            </button>
-            <button
-              onClick={() => router.push('/about')}
-              className="block w-full text-left px-4 py-3 text-gray-300 hover:text-cyan-400 hover:bg-white/5 rounded-lg transition-colors"
+              onClick={() => {
+                router.push('/about');
+                setIsMobileMenuOpen(false);
+              }}
+              className={`block w-full text-left px-4 py-3 rounded-lg transition-colors ${
+                isAboutPage
+                  ? 'text-cyan-400 bg-cyan-500/10'
+                  : 'text-gray-300 hover:text-white hover:bg-white/5'
+              }`}
             >
               About
             </button>
-            <button
-              onClick={() => router.push('/auth/login')}
-              className="block w-full text-left px-4 py-3 text-gray-300 hover:text-cyan-400 hover:bg-white/5 rounded-lg transition-colors"
-            >
-              Sign In
-            </button>
-            <button
-              onClick={() => router.push('/auth/register')}
-              className="block w-full px-4 py-3 bg-gradient-to-r from-cyan-500 to-cyan-400 text-dark-400 rounded-lg font-semibold mt-2"
-            >
-              Get Started
-            </button>
+            {isAuthenticated ? (
+              <button
+                onClick={() => router.push('/dashboard')}
+                className="block w-full px-4 py-3 bg-gradient-to-r from-cyan-500 to-cyan-400 text-dark-400 rounded-lg font-semibold mt-2"
+              >
+                Dashboard
+              </button>
+            ) : (
+              <button
+                onClick={() => router.push('/auth/login')}
+                className="block w-full px-4 py-3 bg-gradient-to-r from-cyan-500 to-cyan-400 text-dark-400 rounded-lg font-semibold mt-2"
+              >
+                Sign In
+              </button>
+            )}
           </div>
         </div>
       )}

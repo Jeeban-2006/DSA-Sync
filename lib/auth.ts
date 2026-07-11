@@ -9,7 +9,7 @@ export interface AuthResult {
 
 export const authenticateRequest = async (): Promise<AuthResult> => {
   try {
-    const headersList = headers();
+    const headersList = await headers();
     const authHeader = headersList.get('authorization');
 
     if (!authHeader) {

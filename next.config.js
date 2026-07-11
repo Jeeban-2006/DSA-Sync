@@ -1,4 +1,4 @@
-const withPWA = require('next-pwa')({
+const withPWA = require('@ducanh2912/next-pwa').default({
   dest: 'public',
   register: true,
   skipWaiting: true,
@@ -49,10 +49,11 @@ const withPWA = require('next-pwa')({
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
+  outputFileTracingRoot: __dirname,
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production'
-  }
+  },
+  turbopack: {}
 };
 
 module.exports = withPWA(nextConfig);

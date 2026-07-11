@@ -74,6 +74,8 @@ export async function POST(request: NextRequest) {
         totalProblemsSolved: user.totalProblemsSolved,
         level: user.level,
         xp: user.xp,
+        github: user.github,
+        isPremium: user.isPremium,
       },
     });
     

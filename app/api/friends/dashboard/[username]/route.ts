@@ -8,17 +8,16 @@ import { authenticateRequest } from '@/lib/auth';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { username: string } }
+  { params }: { params: Promise<{ username: string }> }
 ) {
   try {
+    const { username } = await params;
     const auth = await authenticateRequest();
     if (!auth.authenticated || !auth.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     await connectDB();
-
-    const { username } = params;
 
     // Find the friend by username
     const friend = await User.findOne({ username: username.toLowerCase() });

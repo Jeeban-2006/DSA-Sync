@@ -64,12 +64,12 @@ export default function LandingFooter() {
                 Smart Tracking
               </li>
               <li className="flex items-center gap-2 text-gray-400 hover:text-white cursor-pointer transition-colors text-sm">
-                <TrendingUp className="w-4 h-4 text-primary-400" />
-                Analytics Dashboard
+                <Github className="w-4 h-4 text-primary-400" />
+                GitHub Auto-Sync
               </li>
               <li className="flex items-center gap-2 text-gray-400 hover:text-white cursor-pointer transition-colors text-sm">
                 <Users className="w-4 h-4 text-primary-400" />
-                Friend Comparison
+                Companywise Prep
               </li>
               <li className="flex items-center gap-2 text-gray-400 hover:text-white cursor-pointer transition-colors text-sm">
                 <Brain className="w-4 h-4 text-primary-400" />

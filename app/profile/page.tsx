@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import AuthenticatedLayout from '@/components/AuthenticatedLayout';
 import BottomNav from '@/components/BottomNav';
 import PushNotificationManager from '@/components/PushNotificationManager';
+import GithubIntegration from '@/components/GithubIntegration';
 import { useAuthStore } from '@/store/authStore';
 import { api } from '@/lib/api-client';
 import toast from 'react-hot-toast';
@@ -19,14 +20,18 @@ import {
   Copy,
   Check,
   Bell,
+  Heart,
+  Star
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import DonationModal from '@/components/DonationModal';
 
 export default function ProfilePage() {
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
   const router = useRouter();
   const [copied, setCopied] = useState(false);
+  const [isDonationModalOpen, setIsDonationModalOpen] = useState(false);
 
   const copyUsername = () => {
     if (user?.username) {
@@ -61,10 +66,14 @@ export default function ProfilePage() {
         {/* Header */}
         <div className="bg-gradient-to-br from-purple-600 to-purple-800 p-6 rounded-b-3xl shadow-2xl">
           <div className="flex flex-col items-center">
-            <div className="w-24 h-24 rounded-full bg-white/20 flex items-center justify-center text-4xl font-bold text-white mb-4">
-              {user.name.charAt(0).toUpperCase()}
+            <div className="relative">
+              <div className="w-24 h-24 rounded-full bg-white/20 flex items-center justify-center text-4xl font-bold text-white mb-4">
+                {user.name.charAt(0).toUpperCase()}
+              </div>
             </div>
-            <h1 className="text-2xl font-bold text-white">{user.name}</h1>
+            <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+              {user.name}
+            </h1>
             <p className="text-purple-100 text-sm">@{user.username}</p>
           </div>
         </div>
@@ -144,6 +153,9 @@ export default function ProfilePage() {
             </div>
           </div>
 
+          {/* GitHub Integration */}
+          <GithubIntegration />
+
           {/* Notification Settings */}
           <div className="card">
             <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
@@ -166,6 +178,24 @@ export default function ProfilePage() {
             </div>
           </div>
 
+          {/* Support Developer Actions */}
+          <div className="grid grid-cols-2 gap-4">
+            <button
+              onClick={() => window.open('https://github.com/Jeeban-2006/DSA-Sync', '_blank')}
+              className="card bg-dark-300 hover:bg-dark-200 border border-dark-100 flex flex-col items-center justify-center p-4 transition-colors"
+            >
+              <Star className="w-6 h-6 text-yellow-400 mb-2" />
+              <span className="font-semibold text-white">Star on GitHub</span>
+            </button>
+            <button
+              onClick={() => setIsDonationModalOpen(true)}
+              className="card bg-dark-300 hover:bg-dark-200 border border-dark-100 flex flex-col items-center justify-center p-4 transition-colors"
+            >
+              <Heart className="w-6 h-6 text-pink-500 mb-2" />
+              <span className="font-semibold text-white">Support Developer</span>
+            </button>
+          </div>
+
           {/* Logout Button */}
           <button
             onClick={handleLogout}
@@ -176,6 +206,11 @@ export default function ProfilePage() {
           </button>
         </div>
       </div>
+
+      <DonationModal 
+        isOpen={isDonationModalOpen} 
+        onClose={() => setIsDonationModalOpen(false)} 
+      />
 
       <BottomNav />
     </AuthenticatedLayout>

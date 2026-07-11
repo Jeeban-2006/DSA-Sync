@@ -2,6 +2,7 @@ import './globals.css';
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import { Toaster } from 'react-hot-toast';
+import GlobalPushListener from '@/components/GlobalPushListener';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -134,7 +135,7 @@ export default function RootLayout({
   };
 
   return (
-    <html lang="en">
+    <html lang="en" data-scroll-behavior="smooth">
       <head>
         <link rel="icon" href="/icons/icon-512x512.svg" />
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
@@ -145,6 +146,7 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         {children}
+        <GlobalPushListener />
         <Toaster
           position="top-center"
           toastOptions={{

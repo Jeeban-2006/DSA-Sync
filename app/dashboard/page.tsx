@@ -21,6 +21,7 @@ import {
   Calendar,
   Upload,
   RotateCcw,
+  BookOpen,
 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
@@ -143,6 +144,21 @@ export default function DashboardPage() {
         <div className="p-4 space-y-4">
           {/* Quick Actions */}
           <div className="grid grid-cols-1 gap-3">
+            <div className="card-hover cursor-pointer" onClick={() => router.push('/master-dsa')}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-orange-600/20 flex items-center justify-center">
+                    <BookOpen className="w-6 h-6 text-orange-400" />
+                  </div>
+                  <div>
+                    <p className="text-lg font-semibold text-white">Master DSA</p>
+                    <p className="text-gray-400 text-sm">Curated sheets & interview questions</p>
+                  </div>
+                </div>
+                <div className="text-gray-400">→</div>
+              </div>
+            </div>
+
             <div className="card-hover cursor-pointer" onClick={() => router.push('/import')}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">

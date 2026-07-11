@@ -13,6 +13,9 @@ A modern, mobile-first Progressive Web App (PWA) for tracking, comparing, and im
 ## 🎯 What's New (Latest Updates)
 
 ### ✨ Recently Added Features
+- ✅ **100% Free Forever** - Removed all premium gating; the app is entirely free!
+- ✅ **Support Developer Modal** - Added an easy UPI donation modal to support the developer.
+- ✅ **One-Click GitHub Auto-Star** - Instantly star the repository using GitHub OAuth without leaving the app.
 - ✅ **Privacy Policy & Terms of Service Pages** - Complete legal compliance
 - ✅ **FAQ Section** - Comprehensive help for new users on landing page
 - ✅ **Import Stats Fix** - Imported problems now correctly update XP, level, and stats

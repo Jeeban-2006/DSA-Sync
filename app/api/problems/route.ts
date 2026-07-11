@@ -7,6 +7,7 @@ import ActivityLog from '@/models/ActivityLog';
 import { authenticateRequest } from '@/lib/auth';
 import { calculateXP, calculateLevel } from '@/lib/utils';
 import { addDays } from 'date-fns';
+import { pushProblemToGithub } from '@/lib/github';
 
 export async function POST(request: NextRequest) {
   try {
@@ -113,6 +114,21 @@ export async function POST(request: NextRequest) {
         platform,
       },
     });
+
+    // Auto-commit to GitHub if configured
+    if (user?.github?.accessToken && user?.github?.autoCommit) {
+      // Do this asynchronously to not block the response
+      pushProblemToGithub({
+        token: user.github.accessToken,
+        username: user.github.username,
+        repo: user.github.repository,
+        problemTitle: problemName,
+        difficulty,
+        url: problemLink || '',
+        code: codeSnippet || '',
+        notes: approachSummary || '',
+      }).catch(err => console.error('Background GitHub sync failed:', err));
+    }
 
     return NextResponse.json(
       {

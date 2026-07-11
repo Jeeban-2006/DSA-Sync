@@ -13,6 +13,13 @@ interface User {
   totalProblemsSolved: number;
   level: number;
   xp: number;
+  isPremium?: boolean;
+  github?: {
+    username: string;
+    repository: string;
+    autoCommit: boolean;
+    lastSync?: string;
+  };
 }
 
 interface AuthState {

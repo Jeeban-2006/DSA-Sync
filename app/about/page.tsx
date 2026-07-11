@@ -94,7 +94,7 @@ export default function AboutPage() {
           <div className="text-center mb-16">
             <div className="about-hero w-32 h-32 mx-auto mb-6 rounded-full overflow-hidden border-4 border-gradient-to-br from-primary-500 to-purple-600 shadow-2xl shadow-primary-600/50 relative">
               <Image
-                src="/Jeeban.jpg"
+                src="/Jeeban.jpeg"
                 alt="Jeeban Krushna Sahu"
                 width={128}
                 height={128}
@@ -164,7 +164,7 @@ export default function AboutPage() {
               <p className="text-gray-300 leading-relaxed">
                 My vision is to create a platform where developers can not only track their progress 
                 but also learn from each other, stay motivated through gamification, and receive 
-                personalized guidance powered by AI. DSA Sync is more than just a tracker – it&apos;s a 
+                personalized guidance powered by AI, and automatically sync their solutions to GitHub. DSA Sync is more than just a tracker – it&apos;s a 
                 growth companion for every aspiring software engineer.
               </p>
             </div>
@@ -251,6 +251,12 @@ export default function AboutPage() {
                   title: 'Polish & Launch',
                   description: 'Added 3D animations, optimized performance, and launched',
                   month: 'Month 5',
+                },
+                {
+                  phase: 'Phase 5',
+                  title: 'GitHub & NeetCode Aesthetics',
+                  description: 'Implemented GitHub Auto-Sync, NeetCode-inspired UI, and Companywise Premium Prep',
+                  month: 'Month 6',
                 },
               ].map((milestone, index) => (
                 <div key={index} className="relative flex gap-6">

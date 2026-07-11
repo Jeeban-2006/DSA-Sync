@@ -104,11 +104,11 @@ export default function HeroScene() {
     window.addEventListener('scroll', handleScroll, { passive: true });
 
     // Animation
-    const clock = new THREE.Clock();
+    const startTime = Date.now();
     
     const animate = () => {
       const animationId = requestAnimationFrame(animate);
-      const elapsedTime = clock.getElapsedTime();
+      const elapsedTime = (Date.now() - startTime) / 1000;
 
       // Rotate particles slowly
       particles.rotation.y = elapsedTime * 0.05;

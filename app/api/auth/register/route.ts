@@ -72,6 +72,7 @@ export async function POST(request: NextRequest) {
           totalProblemsSolved: user.totalProblemsSolved,
           level: user.level,
           xp: user.xp,
+          isPremium: user.isPremium || false,
         },
       },
       { status: 201 }
