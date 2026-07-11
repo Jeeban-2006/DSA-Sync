@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
-import { adminMessaging } from '@/lib/firebase-admin';
+import { getAdminMessaging } from '@/lib/firebase-admin';
 
 // Vercel cron jobs pass an Authorization header you can verify
 // For testing locally, just send the CRON_SECRET as a Bearer token or URL param
@@ -68,6 +68,11 @@ export async function GET(request: NextRequest) {
     for (const message of messages) {
       if (message.tokens.length > 0) {
          try {
+           const adminMessaging = getAdminMessaging();
+           if (!adminMessaging) {
+             console.error("Firebase admin messaging not available");
+             continue;
+           }
            const response = await adminMessaging.sendEachForMulticast(message);
            totalSuccess += response.successCount;
          } catch (e) {
