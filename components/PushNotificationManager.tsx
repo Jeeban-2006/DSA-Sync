@@ -49,9 +49,16 @@ export default function PushNotificationManager({ onStatusChange }: PushNotifica
         return;
       }
 
-      // Register the service worker
+      // Register the service worker with dynamic config
       if ('serviceWorker' in navigator) {
-        await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+        const swUrl = new URL('/firebase-messaging-sw.js', window.location.href);
+        swUrl.searchParams.set('apiKey', process.env.NEXT_PUBLIC_FIREBASE_API_KEY || '');
+        swUrl.searchParams.set('authDomain', process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || '');
+        swUrl.searchParams.set('projectId', process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || '');
+        swUrl.searchParams.set('storageBucket', process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || '');
+        swUrl.searchParams.set('messagingSenderId', process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || '');
+        swUrl.searchParams.set('appId', process.env.NEXT_PUBLIC_FIREBASE_APP_ID || '');
+        await navigator.serviceWorker.register(swUrl.href);
       }
 
       const token = await requestFCMToken();
