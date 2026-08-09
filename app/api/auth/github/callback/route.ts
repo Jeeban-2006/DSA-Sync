@@ -6,9 +6,8 @@ import { getGithubUser } from '@/lib/github';
 import { verifyToken } from '@/lib/jwt';
 
 export async function GET(request: NextRequest) {
+  const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000').replace(/\/+$/, '');
   try {
-    const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000').replace(/\/+$/, '');
-    
     const searchParams = request.nextUrl.searchParams;
     const code = searchParams.get('code');
     const state = searchParams.get('state');
