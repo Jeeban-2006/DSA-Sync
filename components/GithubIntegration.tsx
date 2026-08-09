@@ -114,7 +114,9 @@ export default function GithubIntegration() {
         updateUser({
           ...user,
           github: {
-            ...user?.github,
+            username: user.github?.username || '',
+            repository: user.github?.repository || '',
+            autoCommit: user.github?.autoCommit ?? true,
             lastSync: new Date().toISOString()
           }
         });
