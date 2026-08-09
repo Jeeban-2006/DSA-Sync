@@ -73,12 +73,12 @@ export default function LoginPage() {
             <div>
               <label className="label">
                 <Mail className="w-4 h-4 inline mr-2" />
-                Email
+                Email or Username
               </label>
               <input
-                type="email"
+                type="text"
                 className="input"
-                placeholder="your.email@example.com"
+                placeholder="your.email@example.com or username"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 required
@@ -86,10 +86,15 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label className="label">
-                <Lock className="w-4 h-4 inline mr-2" />
-                Password
-              </label>
+              <div className="flex justify-between items-center mb-2">
+                <label className="label mb-0">
+                  <Lock className="w-4 h-4 inline mr-2" />
+                  Password
+                </label>
+                <Link href="/auth/forgot-password" className="text-sm text-cyan-400 hover:text-cyan-300 transition-colors">
+                  Forgot Password?
+                </Link>
+              </div>
               <input
                 type="password"
                 className="input"
