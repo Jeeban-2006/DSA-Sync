@@ -24,6 +24,8 @@ export interface IUser extends Document {
     lastSync?: Date;
   };
   fcmTokens?: string[];
+  resetPasswordToken?: string;
+  resetPasswordExpires?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -51,7 +53,9 @@ const UserSchema = new Schema<IUser>(
       autoCommit: { type: Boolean, default: true },
       lastSync: { type: Date }
     },
-    fcmTokens: [{ type: String }]
+    fcmTokens: [{ type: String }],
+    resetPasswordToken: { type: String },
+    resetPasswordExpires: { type: Date },
   },
   { timestamps: true }
 );
