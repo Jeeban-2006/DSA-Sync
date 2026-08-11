@@ -1,73 +1,44 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Bell, BellOff, Loader2 } from 'lucide-react';
 import { api } from '@/lib/api-client';
 import toast from 'react-hot-toast';
-import { requestFCMToken, onMessageListener } from '@/lib/firebase';
+import { useFCM } from '@/hooks/useFCM';
 
 interface PushNotificationManagerProps {
   onStatusChange?: (enabled: boolean) => void;
 }
 
 export default function PushNotificationManager({ onStatusChange }: PushNotificationManagerProps) {
-  const [supported, setSupported] = useState(false);
+  const { token, permission, loading: fcmLoading, error, requestPermission } = useFCM();
   const [subscribed, setSubscribed] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [permission, setPermission] = useState<NotificationPermission>('default');
+  const [apiLoading, setApiLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    checkPushSupport();
+    setMounted(true);
   }, []);
 
-  const checkPushSupport = () => {
-    if (typeof window === 'undefined') return;
-
-    const isSupported =
-      'serviceWorker' in navigator &&
-      'Notification' in window;
-
-    setSupported(isSupported);
-    setPermission(Notification.permission);
-    
-    if (Notification.permission === 'granted') {
+  useEffect(() => {
+    if (permission === 'granted' && token) {
       setSubscribed(true);
       if (onStatusChange) onStatusChange(true);
+    } else {
+      setSubscribed(false);
+      if (onStatusChange) onStatusChange(false);
     }
-  };
+  }, [permission, token, onStatusChange]);
 
   const subscribeToPush = async () => {
-    setLoading(true);
-
+    setApiLoading(true);
     try {
-      const permissionResult = await Notification.requestPermission();
-      setPermission(permissionResult);
-
-      if (permissionResult !== 'granted') {
-        toast.error('Notification permission denied');
-        setLoading(false);
-        return;
-      }
-
-      // Register the service worker with dynamic config
-      if ('serviceWorker' in navigator) {
-        const swUrl = new URL('/firebase-messaging-sw.js', window.location.href);
-        swUrl.searchParams.set('apiKey', process.env.NEXT_PUBLIC_FIREBASE_API_KEY || '');
-        swUrl.searchParams.set('authDomain', process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || '');
-        swUrl.searchParams.set('projectId', process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || '');
-        swUrl.searchParams.set('storageBucket', process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || '');
-        swUrl.searchParams.set('messagingSenderId', process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || '');
-        swUrl.searchParams.set('appId', process.env.NEXT_PUBLIC_FIREBASE_APP_ID || '');
-        await navigator.serviceWorker.register(swUrl.href);
-      }
-
-      const token = await requestFCMToken();
-
-      if (token) {
+      const obtainedToken = await requestPermission();
+      if (obtainedToken) {
         // Send token to backend
         const res = await api.request('/api/fcm/token', { 
           method: 'POST',
-          body: JSON.stringify({ token })
+          body: JSON.stringify({ token: obtainedToken })
         });
         
         if (res.error) throw new Error(res.error);
@@ -76,22 +47,23 @@ export default function PushNotificationManager({ onStatusChange }: PushNotifica
         if (onStatusChange) onStatusChange(true);
         toast.success('Successfully subscribed to notifications!');
       } else {
-        toast.error('Failed to generate notification token');
+        if (Notification.permission === 'denied') {
+          toast.error('Notification permission denied');
+        } else {
+          toast.error('Failed to generate notification token');
+        }
       }
-    } catch (error) {
-      console.error('Subscription error:', error);
+    } catch (err: any) {
+      console.error('Subscription error:', err);
       toast.error('Failed to enable notifications');
     } finally {
-      setLoading(false);
+      setApiLoading(false);
     }
   };
 
   const unsubscribeFromPush = async () => {
-    // Note: FCM doesn't have a direct "unsubscribe" from the client side without deleting the token.
-    // Usually, you just remove the token from your backend.
-    setLoading(true);
+    setApiLoading(true);
     try {
-      // In a real app, you might want to call an endpoint to remove the token from the user profile
       const res = await api.request('/api/fcm/token/remove', {
         method: 'POST',
         body: JSON.stringify({})
@@ -104,17 +76,22 @@ export default function PushNotificationManager({ onStatusChange }: PushNotifica
       console.error('Unsubscription error:', error);
       toast.error('Failed to disable notifications');
     } finally {
-      setLoading(false);
+      setApiLoading(false);
     }
   };
 
-  if (!supported) {
+  // Prevent hydration mismatches
+  if (!mounted) return null;
+
+  if (error && permission !== 'denied') {
     return (
       <div className="p-4 bg-red-900/20 border border-red-500/30 rounded-lg text-red-400 text-sm">
-        Push notifications are not supported in your browser.
+        Error initializing notifications: {error.message}
       </div>
     );
   }
+
+  const isLoading = fcmLoading || apiLoading;
 
   return (
     <div className="space-y-4">
@@ -150,10 +127,10 @@ export default function PushNotificationManager({ onStatusChange }: PushNotifica
         {!subscribed ? (
           <button
             onClick={subscribeToPush}
-            disabled={loading || permission === 'denied'}
+            disabled={isLoading || permission === 'denied'}
             className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-primary-600 text-white rounded-xl hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            {loading ? (
+            {isLoading ? (
               <>
                 <Loader2 className="w-5 h-5 animate-spin" />
                 <span>Enabling...</span>
@@ -169,10 +146,10 @@ export default function PushNotificationManager({ onStatusChange }: PushNotifica
           <>
             <button
               onClick={unsubscribeFromPush}
-              disabled={loading}
+              disabled={isLoading}
               className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-dark-300 text-red-400 rounded-xl hover:bg-red-500/10 border border-red-500/30 disabled:opacity-50 transition-colors"
             >
-              {loading ? (
+              {isLoading ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
                   <span>Disabling...</span>

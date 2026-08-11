@@ -1,5 +1,6 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getMessaging, getToken, onMessage, isSupported } from 'firebase/messaging';
+import { getAnalytics, isSupported as isAnalyticsSupported, Analytics } from 'firebase/analytics';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -12,6 +13,24 @@ const firebaseConfig = {
 
 // Initialize Firebase only on client side
 const app = typeof window !== 'undefined' ? (!getApps().length ? initializeApp(firebaseConfig) : getApp()) : null;
+
+// Analytics setup
+let analytics: Analytics | null = null;
+
+export const initAnalytics = async () => {
+  if (typeof window !== 'undefined' && app) {
+    const supported = await isAnalyticsSupported();
+    if (supported) {
+      try {
+        analytics = getAnalytics(app);
+        return analytics;
+      } catch (error) {
+        console.error('Failed to initialize Firebase Analytics:', error);
+      }
+    }
+  }
+  return null;
+};
 
 // Messaging setup
 let messaging: any = null;
@@ -62,13 +81,14 @@ export const requestFCMToken = async () => {
 export const onMessageListener = async (callback: (payload: any) => void) => {
   try {
     const msg = await initMessaging();
-    if (!msg) return;
+    if (!msg) return () => {};
     
-    onMessage(msg, (payload) => {
+    return onMessage(msg, (payload) => {
       callback(payload);
     });
   } catch (err) {
     console.error('Failed to setup message listener', err);
+    return () => {};
   }
 };
 

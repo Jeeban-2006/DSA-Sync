@@ -189,7 +189,7 @@ export async function checkStreakToday(userId: string): Promise<boolean> {
     
     const count = await Problem.countDocuments({
       userId,
-      solvedAt: { $gte: today },
+      dateSolved: { $gte: today },
     });
     
     return count > 0;
@@ -205,12 +205,19 @@ export async function checkStreakToday(userId: string): Promise<boolean> {
 export async function sendStreakReminder(userId: string, currentStreak: number) {
   const solvedToday = await checkStreakToday(userId);
   
-  if (!solvedToday && currentStreak > 0) {
+  if (!solvedToday) {
+    const title = currentStreak > 0 
+      ? `🔥 Don't Break Your ${currentStreak}-Day Streak!` 
+      : `🎯 Start Your Streak Today!`;
+    const message = currentStreak > 0
+      ? `You're doing great! Solve one problem today to keep your ${currentStreak}-day streak alive.`
+      : `You haven't solved any DSA problems today. Solve a problem today to build your streak!`;
+
     await createNotification({
       userId,
       type: 'streak',
-      title: `🔥 Don't Break Your ${currentStreak}-Day Streak!`,
-      message: `You're doing great! Solve one problem today to keep your ${currentStreak}-day streak alive.`,
+      title,
+      message,
       actionUrl: '/problems/add',
     });
   }

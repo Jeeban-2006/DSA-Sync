@@ -41,8 +41,8 @@ export async function POST(request: NextRequest) {
           dateSolved: { $gte: today },
         });
 
-        if (!hasSolvedToday && user.currentStreak > 0) {
-          await sendStreakReminder(userId, user.currentStreak);
+        if (!hasSolvedToday) {
+          await sendStreakReminder(userId, user.currentStreak || 0);
           results.streakReminders++;
         }
 

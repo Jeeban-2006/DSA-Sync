@@ -126,9 +126,14 @@ export async function sendStreakReminder(
   userId: string,
   currentStreak: number
 ): Promise<boolean> {
+  const title = currentStreak > 0 ? '🔥 Keep Your Streak Alive!' : '🎯 Start Your Streak Today!';
+  const body = currentStreak > 0 
+    ? `You haven't solved any problem today. Don't break your ${currentStreak} day streak!`
+    : `You haven't solved any DSA problems today. Practice makes perfect—solve one now!`;
+
   const result = await sendPushToUser(userId, {
-    title: '🔥 Keep Your Streak Alive!',
-    body: `You haven't solved any problem today. Don't break your ${currentStreak} day streak!`,
+    title,
+    body,
     url: '/dashboard',
     tag: 'streak-reminder',
   });
