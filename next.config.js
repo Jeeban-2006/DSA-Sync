@@ -46,12 +46,18 @@ const withPWA = require('@ducanh2912/next-pwa').default({
   ]
 });
 
+const path = require('path');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
   outputFileTracingRoot: __dirname,
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production'
+  },
+  webpack: (config) => {
+    config.resolve.alias['@'] = path.resolve(__dirname);
+    return config;
   },
   turbopack: {}
 };

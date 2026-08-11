@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Bell, Mail, Clock, Moon, Send } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { requestFCMToken } from '../lib/firebase';
 
 interface NotificationPreferences {
   pushEnabled: boolean;
@@ -97,6 +98,8 @@ export default function NotificationSettings() {
 
     const permission = await Notification.requestPermission();
     if (permission === 'granted') {
+      const token = await requestFCMToken();
+      console.log(token);
       toast.success('Notification permission granted!');
       updatePreference('pushEnabled', true);
     } else {
