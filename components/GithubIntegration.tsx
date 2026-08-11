@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { api } from '@/lib/api-client';
-import { Github, RefreshCw } from 'lucide-react';
+import { Github, RefreshCw, Download } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 
@@ -13,6 +13,7 @@ export default function GithubIntegration() {
   const [repoName, setRepoName] = useState(user?.github?.repository || 'dsa-sync-submissions');
   const [isSaving, setIsSaving] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [isPulling, setIsPulling] = useState(false);
   const [isDisconnecting, setIsDisconnecting] = useState(false);
 
   useEffect(() => {
@@ -101,14 +102,52 @@ export default function GithubIntegration() {
   const handleBulkSync = async () => {
     setIsSyncing(true);
     try {
-      const res = await api.request<{ count: number; error?: string }>('/api/github/sync', { method: 'POST' });
+      const res = await api.request<{ success: boolean; count: number; message?: string }>('/api/github/sync', {
+        method: 'POST'
+      });
+      
       if (res.error) throw new Error(res.error);
       
-      toast.success(`Successfully synced ${res.data?.count || 0} problems to GitHub!`);
+      toast.success(res.data?.message || `Successfully pushed ${res.data?.count || 0} solutions to GitHub`);
+      
+      if (res.data?.success) {
+        updateUser({
+          ...user,
+          github: {
+            username: user?.github?.username || '',
+            repository: user?.github?.repository || '',
+            autoCommit: user?.github?.autoCommit ?? true,
+            lastSync: new Date().toISOString()
+          }
+        });
+      }
     } catch (err: any) {
-      toast.error(err.message || 'Bulk sync failed');
+      toast.error(err.message || 'Failed to sync with GitHub');
     } finally {
       setIsSyncing(false);
+    }
+  };
+
+  const handlePull = async () => {
+    setIsPulling(true);
+    try {
+      const res = await api.request<{ success: boolean; count: number; totalFilesFound: number; message?: string }>('/api/github/pull', {
+        method: 'POST'
+      });
+      
+      if (res.error) throw new Error(res.error);
+      
+      if (res.data?.count === 0 && res.data.totalFilesFound > 0) {
+        toast.success(`Found ${res.data.totalFilesFound} files, but no missing problems were updated.`);
+      } else if (res.data?.count === 0) {
+        toast.success(res.data.message || 'No new LeetHub files found in repository.');
+      } else {
+        toast.success(`Successfully imported code for ${res.data?.count} problems from GitHub!`);
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to import code from GitHub');
+    } finally {
+      setIsPulling(false);
     }
   };
 
@@ -235,18 +274,28 @@ export default function GithubIntegration() {
         <select className="w-full bg-[#0d1117] border border-white/10 text-white text-sm rounded-lg px-3 py-2 mb-3 focus:outline-none">
           <option>Accepted Only</option>
         </select>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={handleBulkSync}
-            disabled={isSyncing}
-            className="bg-[#238636] hover:bg-[#2ea043] text-white border border-[#2ea043]/30 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 disabled:opacity-50"
-          >
-            <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
-            {isSyncing ? 'Syncing...' : 'Sync All Now'}
-          </button>
-          <span className="text-xs text-gray-500">
-            {user?.github?.lastSync ? `Last synced ${new Date(user.github.lastSync).toLocaleDateString()}` : 'No submissions to sync.'}
-          </span>
+        <div className="flex items-center gap-3 w-full">
+          <div className="flex gap-2 w-full">
+            <button
+              onClick={handleBulkSync}
+              disabled={isSyncing}
+              className="bg-[#238636] hover:bg-[#2ea043] text-white border border-[#2ea043]/30 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50 flex-1"
+            >
+              <RefreshCw className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} />
+              {isSyncing ? 'Syncing...' : 'Sync All Now'}
+            </button>
+            <button
+              onClick={handlePull}
+              disabled={isPulling}
+              className="bg-transparent hover:bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 disabled:opacity-50 flex-1"
+            >
+              <Download className={`w-4 h-4 ${isPulling ? 'animate-spin' : ''}`} />
+              {isPulling ? 'Importing...' : 'Import Code'}
+            </button>
+          </div>
+        </div>
+        <div className="mt-2 text-xs text-gray-500">
+          {user?.github?.lastSync ? `Last synced ${new Date(user.github.lastSync).toLocaleDateString()}` : 'No submissions to sync.'}
         </div>
       </div>
 

@@ -36,8 +36,8 @@ class ApiClient {
       
       console.log(`📡 Response: ${response.status} ${response.statusText}`);
 
-      // Handle 401 Unauthorized - token expired or invalid
-      if (response.status === 401) {
+      // Handle 401 Unauthorized - token expired or invalid (except for login where 401 means invalid credentials)
+      if (response.status === 401 && !endpoint.includes('/api/auth/login')) {
         // Clear auth state if token is invalid
         if (typeof window !== 'undefined') {
           const authData = localStorage.getItem('dsa-sync-auth');

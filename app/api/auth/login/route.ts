@@ -25,12 +25,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Find user
-    const user = await User.findOne({ email: email.toLowerCase() });
+    // Find user by email OR username
+    const identifier = email.toLowerCase();
+    const user = await User.findOne({
+      $or: [
+        { email: identifier },
+        { username: identifier }
+      ]
+    });
     console.log('👤 User found:', user ? 'Yes' : 'No');
 
     if (!user) {
-      console.log('❌ User not found for email:', email);
+      console.log('❌ User not found for identifier:', email);
       return NextResponse.json(
         { error: 'Invalid credentials' },
         { status: 401 }
