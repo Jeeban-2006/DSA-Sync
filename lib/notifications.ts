@@ -31,33 +31,41 @@ export const registerMessagingServiceWorker = async (): Promise<ServiceWorkerReg
   if (!isNotificationSupported()) return null;
 
   try {
-    const existing = await navigator.serviceWorker.getRegistration(
-      '/firebase-messaging-sw.js'
+    const configParams = new URLSearchParams({
+      apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || '',
+      authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || '',
+      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || '',
+      storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || '',
+      messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || '',
+      appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || '',
+    }).toString();
+
+    const swUrl = `/firebase-messaging-sw.js?${configParams}`;
+
+    // Get all registrations to find existing one
+    const registrations = await navigator.serviceWorker.getRegistrations();
+    const existing = registrations.find(
+      (reg) => reg.active && reg.active.scriptURL.includes('/firebase-messaging-sw.js')
     );
 
     if (existing) {
       console.log('✅ Existing Service Worker found');
-      console.log(existing);
-      return existing;
+      // If the configuration params match, return existing
+      if (existing.active && existing.active.scriptURL.includes(configParams)) {
+        return existing;
+      }
+      console.log('Updating Service Worker configuration...');
     }
 
     console.log('Registering Firebase Messaging Service Worker...');
 
-    const registration = await navigator.serviceWorker.register(
-      '/firebase-messaging-sw.js',
-      {
-        scope: '/',
-      }
-    );
+    const registration = await navigator.serviceWorker.register(swUrl, {
+      scope: '/',
+    });
 
     await navigator.serviceWorker.ready;
 
     console.log('✅ Service Worker Registered');
-    console.log('Scope:', registration.scope);
-    console.log('Active:', registration.active);
-    console.log('Installing:', registration.installing);
-    console.log('Waiting:', registration.waiting);
-
     return registration;
   } catch (error) {
     console.error('❌ Service Worker registration failed');
